@@ -8,7 +8,7 @@ public class Frame {
 
 	public static int totalPoints = 4;  
 
-	PApplet parent;
+	private PApplet parent;
 
 	public List<PVector> v; 
 
@@ -38,7 +38,41 @@ public class Frame {
 
 	}
 
+	public float getArea() {
+		if (v.size() < 4) {
+			return 0;
+			
+		} else {
+						
+			float area = 0;
+			PVector first = v.get(0);
+			PVector last = first;
+			
+			for (int i = 0; i < v.size(); i++) {
+				PVector next = v.get(i);
+				area += next.x * last.y - last.x * next.y;
+				last = next;
+			}
+			area += first.x * last.y - last.x * first.y;
+			return area / 2;			
+		}
+	}
 
+	public PVector centroid() {
+		
+		PVector res = new PVector (0,0);
+		
+		for (PVector p : v) {
+			res.x += p.x;
+			res.y += p.y;
+		}
+		res.x /= v.size();
+		res.y /= v.size();
+		
+		return res;
+	}
+	
+	
 	public void draw(PApplet p5, float x, float y, float scale, PImage img) {
 
 		p5.stroke(255);

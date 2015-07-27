@@ -49,16 +49,32 @@ public class Server extends PApplet {
 	boolean[] receivedTrackingClient;
 
 	DatagramSocket ds;  // to stream video
-
-
+	
+	private PVector[] kinects;
+	
+	float stageSide = 10f;
+	
 	public void setup() {
 		size (1400, 800, P3D);
-
 
 		trackedFrames = new Frame[totalClients];
 		receivedTrackingClient = new boolean[totalClients];
 		clients = new String[totalClients];
 		clientAddresses = new NetAddress[totalClients];
+		kinects = new PVector[totalClients];
+		
+		kinects[0].x = 0;
+		kinects[0].y = 0;
+		
+		kinects[1].x = stageSide / 2;
+		kinects[1].y = stageSide / 2;
+		
+		kinects[2].x = stageSide;
+		kinects[2].y = 0;
+		
+		kinects[3].x = stageSide / 2;
+		kinects[3].y = -stageSide / 2;
+		
 		
 		// todo get this info from txt file
 		for (int i = 0; i < totalClients; i++) {
@@ -88,6 +104,8 @@ public class Server extends PApplet {
 		activeMessage = new OscMessage("/active");
 
 	}
+	
+	
 
 	public void sendImage (PImage img, String ip, int port) {
 		// We need a buffered image to do the JPG encoding
@@ -164,7 +182,35 @@ public class Server extends PApplet {
 
 			 */
 
-			//1 we need to locate the frame in 3D space our of the information we have from the four "eyes"
+			/*
+			 *  locate frame in 3D space
+			 
+			 		find the frame with the biggest area (Active frame)
+					find the secondary frame
+					distance (depending on which frame active = x or y)
+					distance to center = y or x
+			
+			 calibration with point
+			
+			 if coordinate in area then 
+					if not playing video load corresponding video; current frame = 0
+			
+						load frame
+						if applyinf effect, apply effect (x,y)
+						send frame 
+						advance current frame
+				
+			else if coordinate in area-traverse
+				play corresponding sound
+				if not video loaded, load video
+				get corresponding frame (x,y)
+				send frame
+			
+			
+			update background sound(s)
+			*/
+			
+			
 
 		}				
 
