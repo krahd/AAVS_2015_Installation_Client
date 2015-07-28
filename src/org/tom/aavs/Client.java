@@ -20,10 +20,15 @@ import processing.core.PVector;
 import processing.video.Capture;
 import processing.video.Movie;
 
+
 public class Client extends PApplet {
 
-	//private String serverIP = "127.0.0.1"; // "192.168.0.11"; should be taken from the config.
-	private String serverIP = "192.168.0.11"; // should be taken from the config.
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2261761872589676135L;
+	private String serverIP = "127.0.0.1"; // "192.168.0.11"; should be taken from the config.
+	//private String serverIP = "192.168.0.11"; // should be taken from the config.
 	private int serverPort = 11300;
 	private int clientPort = 11200;
 	NetAddress serverLocation;
@@ -90,7 +95,7 @@ public class Client extends PApplet {
 		scaleFactor = new PVector (1,1);
 		positionFactor = new PVector (0, 0);
 
-		vertices = new ArrayList(totalVertices);
+		vertices = new ArrayList<PVector>(totalVertices);
 		calibrationVertices = new PVector[4];
 
 		if (kinectPresent) {
@@ -278,7 +283,7 @@ public class Client extends PApplet {
 			}
 		}
 		else { // kinect !present
-			if (vertices.size() < 4) {
+			if (vertices.size() < 4) { // only happens the first time
 				vertices.clear();
 
 				for (int i = 0; i < totalVertices; i++) {

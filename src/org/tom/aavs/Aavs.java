@@ -2,19 +2,25 @@ package org.tom.aavs;
 
 
 
-import processing.*;
-import processing.core.*;
-import processing.video.*;
-import gab.opencv.*;
+import gab.opencv.Contour;
+import gab.opencv.OpenCV;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import org.openkinect.freenect.*;
-import org.openkinect.processing.*;
+import org.openkinect.processing.Kinect;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
+import processing.video.Capture;
 
 public class Aavs extends PApplet {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6742008736822265854L;
 	//Capture video;
 	OpenCV opencv;
 	int scl = 1;

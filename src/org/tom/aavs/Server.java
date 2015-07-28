@@ -21,8 +21,13 @@ import processing.core.PVector;
 import processing.video.Movie;
 
 
+ 
 public class Server extends PApplet {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4547488521500559579L;
 	float viewX = 520;
 	float viewY = 0;
 	float viewHeight = 320;
@@ -31,6 +36,7 @@ public class Server extends PApplet {
 
 	int totalClients = 4;
 	int activeClient = 0;
+	int lastActiveClient = 0;
 
 	private int serverPort = 11300;
 	private int clientPort = 11200;
@@ -94,18 +100,22 @@ public class Server extends PApplet {
 		
 		// todo get this info from txt file
 		for (int i = 0; i < totalClients; i++) {
-			//clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  FIXME
-			clientAddresses[i] = new NetAddress("192.168.0" + (i+1), clientPort);   // 192.168.0."  FIXME
+			clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  FIXME
+			//clientAddresses[i] = new NetAddress("192.168.0" + (i+1), clientPort);   // 192.168.0."  FIXME
 			clients[i] = "127.0.0." + (i+1); // clients we are writing to
 
 			//trackedFrames[i] = new Frame (-100, -100, -100, -100, -100, -100, -100, -100);
-			trackedFrames[i] = new Frame (
-					this,
-					(int)random (640), (int)random (480),
+			trackedFrames[i] = new Frame (200, 100, 100, 200, 200, 200, 100, 100);					
+				
+					
+					/*
+					 (int)random (640), (int)random (480),					 
 					(int)random (640), (int)random (480),
 					(int)random (640), (int)random (480),
 					(int)random (640), (int)random (480)
 					);
+					*/
+					
 			//200, 100, 100, 200, 200, 200);
 
 			receivedTrackingClient[i] = false;
@@ -175,7 +185,7 @@ public class Server extends PApplet {
 	}
 
 	private String getVideoFilename (PVector coords) {
-		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers640.mov";
+		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers.mov";
 		// this needs still to be coded and these are several videos. 
 		// this configuration should be on a config file
 	}
@@ -250,7 +260,7 @@ public class Server extends PApplet {
 		frameCoordinates.y = 0;
 		
 		
-		if (receivedMessagesFromAllClients()) {
+	//	if (receivedMessagesFromAllClients()) { //TODO test
 
 			/* 	
 			 * need to do the following:
@@ -286,7 +296,7 @@ public class Server extends PApplet {
 			}
 			
 			int side = (active + 1) % 4;
-			if (!(trackedFrames[side].totalPoints >= 2)) {
+			if (!(Frame.totalPoints >= 2)) {
 				side = (side + 2) % 4;				
 			}
 			
@@ -325,7 +335,7 @@ public class Server extends PApplet {
 			
 			
 
-		}	
+		//} // if received from all clients	
 		
 		PImage img = getVideoFrame (frameCoordinates);
 
@@ -354,32 +364,34 @@ public class Server extends PApplet {
 	private void activateClient(int which) {
 		
 		// fixme! (we only have one client in testing)  
-		
-		for (int i = 0; i < totalClients; i++) {
-			activeMessage.clearArguments();
+		if (which != lastActiveClient) { 
 			
-			int[] params = new int[1];
-			if (i == which) {
-				params[0] = 1;
+
+			for (int i = 0; i < totalClients; i++) {
+				activeMessage.clearArguments();
+
+				int[] params = new int[1];
+				if (i == which) {
+					params[0] = 1;
+				}
+				else {
+					params[0] = 0;
+				}
+
+				activeMessage.add(params); 			
+
+				if (i == 0) { //TODO delete the (if) that i put because in test I have only one client
+					oscP5.send(activeMessage, clientAddresses[i]);
+				}
 			}
-			else {
-				params[0] = 0;
-			}
-					
- 			activeMessage.add(params); 			
- 			
-			if (i == 0) { //TODO delete this is because we have only one client
-				oscP5.send(activeMessage, clientAddresses[i]);
-			}
+			
+			midiBackground[lastActiveClient].note(60,  0); // silence the active					
+			midiBackground[which].note(60, 127); // start the new one
+			
+			lastActiveClient = which;
 		}
+			
 		
-		for (int i = 0; i < totalClients; i++) {
-			if (i != which) {
-				midiBackground[i].note(60,  0);
-			}
-		}
-		midiBackground[which].note(60, 127);
-				
 	}
 
 	private boolean receivedMessagesFromAllClients() {
@@ -403,7 +415,6 @@ public class Server extends PApplet {
 
 		// println("server: received " + msg.addrPattern() + ", typetad: " + msg.typetag() + ", from: " + msg.address());
 
-
 		String adr = msg.address();
 		String[] adrBytes = split (adr, '.');
 		int clientNumber = new Integer(adrBytes [3]).intValue() - 1; // 192.168.0.1 -> client 0
@@ -426,6 +437,7 @@ public class Server extends PApplet {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void reset() {
 		for (int i = 0; i < totalClients; i++) {
 			receivedTrackingClient[i] = false;
@@ -436,8 +448,7 @@ public class Server extends PApplet {
 		switch (key) {
 		case 'p':
 			for (int i = 0; i < totalClients; i++) {
-				trackedFrames[i] = new Frame (
-						this,
+				trackedFrames[i] = new Frame (						
 						(int)random (640), (int)random (480),
 						(int)random (640), (int)random (480),
 						(int)random (640), (int)random (480),

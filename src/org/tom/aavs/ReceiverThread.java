@@ -6,12 +6,17 @@ package org.tom.aavs;
 // based on the example of Daniel Shiffman available at http://www.shiffman.net
 
 
-import processing.video.*;
-import java.net.*;
-import java.awt.image.*;
-import javax.imageio.*;
-import java.io.*;
-import processing.core.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+
+import javax.imageio.ImageIO;
+
+import processing.core.PApplet;
+import processing.core.PImage;
 
 
 class ReceiverThread extends Thread {
@@ -25,7 +30,6 @@ class ReceiverThread extends Thread {
 	boolean running;     
 	boolean available;   
 	Client parent;
-
 
 	PImage img;
 

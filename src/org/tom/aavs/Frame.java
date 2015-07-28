@@ -1,5 +1,6 @@
 package org.tom.aavs;
 
+import java.awt.print.Printable;
 import java.util.*;
 
 import processing.core.*;
@@ -8,19 +9,15 @@ public class Frame {
 
 	public static int totalPoints = 4;  
 
-	private PApplet parent;
-
 	public List<PVector> v; 
 
-	public Frame(
-			PApplet parent,
+	public Frame(			
 			int px0, int py0,
 			int px1, int py1,
 			int px2, int py2,
 			int px3, int py3
 			) {
 
-		this.parent = parent;
 		List<PVector> temp = new ArrayList<PVector>();
 
 		temp.add(new PVector(px0, py0));
@@ -58,16 +55,17 @@ public class Frame {
 		}
 	}
 
-	public PVector centroid() {
-		
+	public PVector centroid() {				
 		PVector res = new PVector (0,0);
 		
-		for (PVector p : v) {
-			res.x += p.x;
-			res.y += p.y;
+		if (v.size() > 0) {
+			for (PVector p : v) {
+				res.x += p.x;
+				res.y += p.y;
+			}
+			res.x /= v.size();
+			res.y /= v.size();
 		}
-		res.x /= v.size();
-		res.y /= v.size();
 		
 		return res;
 	}
@@ -80,23 +78,27 @@ public class Frame {
 		p5.translate(x, y);
 		p5.scale(scale, scale);
 
-		if (v.size() > 3) {
-			p5.beginShape();
-			p5.texture(img);
-			p5.vertex (v.get(0).x , v.get(0).y , 0, 0);
-			p5.vertex (v.get(1).x , v.get(1).y , img.width, 0);	
-			p5.vertex (v.get(2).x , v.get(2).y , img.width, img.height);
-			p5.vertex (v.get(3).x , v.get(3).y , 0, img.height);		
-			p5.endShape(p5.CLOSE);
+		try {
+			if (v.size() > 3) {
+				p5.beginShape();
+				p5.texture(img);
+				p5.vertex (v.get(0).x , v.get(0).y , 0, 0);
+				p5.vertex (v.get(1).x , v.get(1).y , img.width, 0);	
+				p5.vertex (v.get(2).x , v.get(2).y , img.width, img.height);
+				p5.vertex (v.get(3).x , v.get(3).y , 0, img.height);		
+				p5.endShape(PConstants.CLOSE);
+			}
+
+			for (int i = 0; i < v.size(); i++) {
+				p5.stroke(255, 0, 0);			
+				p5.ellipse (v.get(i).x, v.get(i).y, 10, 10);
+			}
+
+		} catch (Exception e) { //TODO see why it does die from time to time, it makes no sense
+			System.out.println(":(");
 		}
-		
-		for (int i = 0; i < v.size(); i++) {
-			p5.stroke(255, 0, 0);
-			p5.ellipse (v.get(i).x, v.get(i).y, 10, 10);
-		}
-		
 		p5.popMatrix();
-		
+
 		
 	}		
 
@@ -113,7 +115,7 @@ public class Frame {
 			p5.vertex (v.get(1).x , v.get(1).y , 100, 0);		
 			p5.vertex (v.get(2).x , v.get(2).y , 0, 100);
 			p5.vertex (v.get(3).x , v.get(3).y , 100, 100);		
-			p5.endShape(p5.CLOSE);
+			p5.endShape(PConstants.CLOSE);
 		}
 
 		p5.popMatrix();
