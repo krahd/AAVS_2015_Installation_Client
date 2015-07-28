@@ -52,6 +52,8 @@ public class Server extends PApplet {
 	float stageSide = 10f;
 	MIDI [] midiBackground;
 	
+	MIDI test;
+	
 	private boolean transmittingFrames = true;
 	private boolean transmittingCommands = false;
 	
@@ -88,7 +90,8 @@ public class Server extends PApplet {
 		
 		// todo get this info from txt file
 		for (int i = 0; i < totalClients; i++) {
-			clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  FIXME
+			//clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  FIXME
+			clientAddresses[i] = new NetAddress("192.168.0" + (i+1), clientPort);   // 192.168.0."  FIXME
 			clients[i] = "127.0.0." + (i+1); // clients we are writing to
 
 			//trackedFrames[i] = new Frame (-100, -100, -100, -100, -100, -100, -100, -100);
@@ -118,7 +121,10 @@ public class Server extends PApplet {
 		for (int i = 0; i < totalClients; i ++) {
 			midiBackground[i] = new MIDI(this, i);		 // second parameter is the device number
 		}
-		currentVideo = null;		
+		currentVideo = null;	
+		
+		test = new MIDI(this, 0);
+		
 
 	}
 	
@@ -165,7 +171,7 @@ public class Server extends PApplet {
 	}
 
 	private String getVideoFilename (PVector coords) {
-		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers640sound.mov";
+		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers640.mov";
 	}
 
 	public PImage getVideoFrame (PVector coords) {
@@ -424,14 +430,23 @@ public class Server extends PApplet {
 						(int)random (640), (int)random (480),
 						(int)random (640), (int)random (480)
 						);
-			}
+			}a
 			break;
 			
 		case '0': case '1': case '2': case '3':			
 			activeClient = keyCode-48;			
+			backgroundSound (activeClient);
+			break;
+			
+		case 'a':
+			
+				test.note(0,  127);
+				
+			
 			break;
 			
 		case 's':
+			
 			for (int i = 0; i < totalClients; i++) {
 				midiBackground[i].note(60, 128); 
 			}
@@ -441,6 +456,10 @@ public class Server extends PApplet {
 			sendPlayCommand();
 			break;
 		}
+	}
+	
+	public void backgroundSound(int activeClient) {
+		
 	}
 
 }

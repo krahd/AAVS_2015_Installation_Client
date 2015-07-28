@@ -22,7 +22,8 @@ import processing.video.Movie;
 
 public class Client extends PApplet {
 
-	private String serverIP = "127.0.0.1"; // "192.168.0.11"; should be taken from the config.
+	//private String serverIP = "127.0.0.1"; // "192.168.0.11"; should be taken from the config.
+	private String serverIP = "192.168.0.11"; // should be taken from the config.
 	private int serverPort = 11300;
 	private int clientPort = 11200;
 	NetAddress serverLocation;
