@@ -27,6 +27,7 @@ public class Client extends PApplet {
 
 	private boolean transmitting = false;
 	private boolean kinectPresent = true;
+	private boolean debug = false;
 
 	//Capture video;
 	OpenCV opencv;
@@ -137,7 +138,9 @@ public class Client extends PApplet {
 		scaleFactor.y = sy;
 		positionFactor.x = tx;
 		positionFactor.y = ty;
-
+		
+		strokeWeight(3);
+		noFill();
 	}
 
 
@@ -229,12 +232,17 @@ public class Client extends PApplet {
 
 	public void draw() {
 
-		background(128);
-		fill (255,0,0);
-		rect(0, 0, 50, 50);
-		rect(width-50, 0, 50, 50);
-		rect(0, height-50, 50, 50);
-		rect(width-50, height-50, 50, 50);
+		if (debug) {
+			background(128);
+			fill (255,0,0);
+			rect(0, 0, 50, 50);
+			rect(width-50, 0, 50, 50);
+			rect(0, height-50, 50, 50);
+			rect(width-50, height-50, 50, 50);
+			noFill();
+		} else{
+			background(0);
+		}
 
 
 		if (kinectPresent) {
@@ -247,13 +255,7 @@ public class Client extends PApplet {
 			opencv.threshold(70);
 			dst = opencv.getOutput();
 			vertices.clear();
-
-			fill(255);  
-			//	image(kinectFrame, 0, 0);
-
-			noFill();
-			strokeWeight(3);
-
+		
 			contours = opencv.findContours();
 			int i = 0;
 
@@ -279,8 +281,6 @@ public class Client extends PApplet {
 		}
 
 
-		stroke (255, 0 ,0);
-
 		pushMatrix();		
 		translate(positionFactor.x, positionFactor.y);
 		scale(scaleFactor.x, scaleFactor.y);
@@ -289,24 +289,14 @@ public class Client extends PApplet {
 
 		if (vertices.size() > 0) {
 			// sorting vertices
-
-
 			Set<PVector> tempSet = GrahamScan.getSortedPVectorSet(vertices);
-
-
+			
 			vertices.clear();
 			vertices.addAll(tempSet);
 
 			if (vertices.size() > 4) vertices = (ArrayList<PVector>) GrahamScan.getConvexHull(vertices);
-
-
-
 			// Collections.sort(vertices, new TriangleVectorComparator(new PVector(0,0)));
-
-
 			// vertices = stupidOrdering(vertices);
-
-
 		}
 
 		if (transmitting) {
@@ -321,8 +311,6 @@ public class Client extends PApplet {
 					params[2*i] = (int)vertices.get(i).x;
 					params[2*i+1] = (int)vertices.get(i).y;				
 				}
-
-
 				trackMessage.add(params);
 			}
 
@@ -333,6 +321,13 @@ public class Client extends PApplet {
 			if (thread.available()) {			
 				img = thread.getImage();
 			}
+		}
+		
+		if (debug) {
+			stroke (255, 0, 0);
+				
+		} else {
+			noStroke();
 		}
 
 		if (activeClient) {
@@ -351,18 +346,14 @@ public class Client extends PApplet {
 		}
 
 
-		textSize(40);;
+		if (debug) {
+			textSize(40);
 
-		for (int i = 0; i < vertices.size(); i++) {
-
-			ellipse(vertices.get(i).x, vertices.get(i).y, 10, 10);
-			pushMatrix();
-
-			text("" + i , vertices.get(i).x + 15, vertices.get(i).y);
-			popMatrix();
-
+			for (int i = 0; i < vertices.size(); i++) {
+				ellipse(vertices.get(i).x, vertices.get(i).y, 10, 10);
+				text("" + i , vertices.get(i).x + 15, vertices.get(i).y);
+			}
 		}
-
 
 		popMatrix();
 
