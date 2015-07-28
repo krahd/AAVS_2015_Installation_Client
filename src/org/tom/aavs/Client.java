@@ -26,6 +26,7 @@ public class Client extends PApplet {
 	public static final boolean FULLSCREEN = true;
 
 	private boolean transmitting = true;
+	protected boolean receivingCommands = true;
 	private boolean kinectPresent = true;
 	private boolean debug = true;
 
@@ -69,10 +70,12 @@ public class Client extends PApplet {
 
 	private final String CONFIG_FILE = "/Users/tom/devel/eclipse workspace/AAVS/bin/data/config.txt";
 
+	Movie localMovie;
 
 	public void setup() {
-		//size(1024, 768, P3D);	
+		//size(1024, 768, P3D);			
 		size(displayWidth, displayHeight, P3D);
+		frameRate(30);
 
 		activeClient = true;
 		calibrating = false;
@@ -109,8 +112,9 @@ public class Client extends PApplet {
 		trackMessage = new OscMessage("/frame");
 
 		thread = new ReceiverThread(this, cameraWidth, cameraHeight);
-
+		thread.setPriority(Thread.MAX_PRIORITY);
 		thread.start();
+
 
 		float sx = 1;
 		float sy = 1;
@@ -129,7 +133,7 @@ public class Client extends PApplet {
 			sy = new Float(lines[1]).floatValue();
 			tx = new Float(lines[2]).floatValue();
 			ty = new Float(lines[3]).floatValue();
-			
+
 		} catch (Exception e) {
 			System.out.println("config file doesn't exist, using default values.");
 		}
@@ -138,7 +142,7 @@ public class Client extends PApplet {
 		scaleFactor.y = sy;
 		positionFactor.x = tx;
 		positionFactor.y = ty;
-		
+
 		strokeWeight(3);
 		noFill();
 	}
@@ -255,7 +259,7 @@ public class Client extends PApplet {
 			opencv.threshold(70);
 			dst = opencv.getOutput();
 			vertices.clear();
-		
+
 			contours = opencv.findContours();
 			int i = 0;
 
@@ -285,12 +289,10 @@ public class Client extends PApplet {
 		translate(positionFactor.x, positionFactor.y);
 		scale(scaleFactor.x, scaleFactor.y);
 
-
-
 		if (vertices.size() > 0) {
 			// sorting vertices
 			Set<PVector> tempSet = GrahamScan.getSortedPVectorSet(vertices);
-			
+
 			vertices.clear();
 			vertices.addAll(tempSet);
 
@@ -317,15 +319,20 @@ public class Client extends PApplet {
 			oscP5.send(trackMessage, serverLocation);
 		}
 
-		if (transmitting) {
+		if (transmitting && !receivingCommands) {
 			if (thread.available()) {			
 				img = thread.getImage();
 			}
+		} 
+		if (transmitting && receivingCommands) {
+			if (localMovie != null) {
+				img = localMovie;
+			}
 		}
-		
+
 		if (debug) {
 			stroke (255, 0, 0);
-				
+
 		} else {
 			noStroke();
 		}
@@ -482,12 +489,12 @@ public class Client extends PApplet {
 		case 's':
 			saveCalibration();
 			break;
-			
+
 		case ' ':
 			debug = !debug;
 			break;
-			
-			
+
+
 		}
 	}
 
@@ -496,9 +503,12 @@ public class Client extends PApplet {
 		// if we get the message /active and we get the parameter "1" then we are the active, else we are not
 
 		String adr = msg.address();		
-		if(msg.checkAddrPattern("/active")==true) {			
+		if(msg.checkAddrPattern("/active") == true) {			
 			int a = (msg.get(0).intValue());			
 			activeClient = a == 1;			
+		} else if (msg.checkAddrPattern("/play")) {
+			String filename = msg.get(0).stringValue();
+			localMovie = new Movie(this, filename);
 		}
 
 

@@ -33,9 +33,7 @@ public class Server extends PApplet {
 	int totalClients = 4;
 	int activeClient = 0;
 
-	private String serverIP = "127.0.0.1"; // "192.168.0.11"; // this should be taken from a config file
 	private int serverPort = 11300;
-	private String clientIP = "127.0.0.1"; // "192.168.0.1";
 	private int clientPort = 11200;
 	private int clientDatagramPort = 11100;
 
@@ -44,7 +42,7 @@ public class Server extends PApplet {
 	Frame[] trackedFrames;
 
 	NetAddress[] clientAddresses;
-	OscMessage activeMessage;
+	OscMessage activeMessage, videoPlayMessage;
 
 	boolean[] receivedTrackingClient;
 
@@ -55,16 +53,18 @@ public class Server extends PApplet {
 	float stageSide = 10f;
 	MIDI midiBackground;
 	
-	private boolean transmitting = true;
+	private boolean transmittingFrames = true;
+	private boolean transmittingCommands = true;
 	
 	PVector frameCoordinates = new PVector(-1000, -1000);
 	
 	Movie currentVideo;
-	
+	String currentFilename;
 	
 	public void setup() {
 		size (1400, 800, P3D);
-
+		frameRate(30);
+		
 		trackedFrames = new Frame[totalClients];
 		receivedTrackingClient = new boolean[totalClients];
 		clients = new String[totalClients];
@@ -160,15 +160,24 @@ public class Server extends PApplet {
 		}	
 	}
 
+	private String getVideoFilename (PVector coords) {
+		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers640sound.mov";
+	}
 
 	public PImage getVideoFrame (PVector coords) {
 		PImage img;
 		// img = loadImage("car.jpg");
 		
+		// TODO select video in function of coords in getVideoFilename()
 		
-		if (currentVideo == null) {
-			currentVideo = new Movie (this, "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers640.mov"); //TODO make it relative path
+		if (currentVideo == null || !currentFilename.equals(getVideoFilename(coords))) {
+			
+			currentVideo = new Movie (this, getVideoFilename(coords)); //TODO make it relative path			
 			currentVideo.loop();
+			
+			if (transmittingCommands) {
+				sendPlayCommand();
+			}
 		}
 		
 		img = currentVideo;
@@ -281,10 +290,12 @@ public class Server extends PApplet {
 		
 		PImage img = getVideoFrame (frameCoordinates);
 
-		if (transmitting) {
+		activateClient(activeClient);
+		
+		if (transmittingFrames) {
 			sendImage(img, clients[activeClient], clientDatagramPort);
 		}
-		activateClient(activeClient);
+		
 
 		drawStatus();
 
@@ -293,6 +304,13 @@ public class Server extends PApplet {
 		trackedFrames[2].draw((PApplet)this, viewX + viewSeparation, viewY + viewHeight + viewSeparation * 2, 0.66f, img);
 		trackedFrames[3].draw((PApplet)this, viewX + viewSeparation * 2 + viewWidth, viewY + viewHeight + viewSeparation * 2, 0.66f, img);
 
+	}
+	
+	private void sendPlayCommand() {
+		videoPlayMessage.clearArguments();
+		videoPlayMessage.add(currentFilename);
+		oscP5.send(videoPlayMessage, clientAddresses[0]); // TODO send to activeClient
+		
 	}
 
 	private void activateClient(int which) {
@@ -313,9 +331,7 @@ public class Server extends PApplet {
 			activeMessage.add(0);
 		}
 		
-		
-		//activeMessage.add((boolean)(0 == which));
-		oscP5.send(activeMessage, clientAddresses[0]);
+		oscP5.send(activeMessage, clientAddresses[0]); // TODO send to activeClient
 	}
 
 	private boolean receivedMessagesFromAllClients() {

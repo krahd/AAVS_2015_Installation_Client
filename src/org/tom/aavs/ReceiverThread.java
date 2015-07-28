@@ -23,17 +23,17 @@ class ReceiverThread extends Thread {
 	byte[] buffer = new byte[65536]; 
 
 	boolean running;    // Is the thread running?  Yes or no?
-	boolean available;  // Are there new tweets available?
-	PApplet parent;
+	boolean available;   
+	Client parent;
 
-	// Start with something 
+
 	PImage img;
 
-	public ReceiverThread (PApplet parent, int w, int h) {
+	public ReceiverThread (Client parent, int w, int h) {
 		this.parent = parent;
 		img = parent.createImage(w, h, PApplet.RGB);
 		running = false;
-		available = true; // We start with "loading . . " being available
+		available = true;  
 
 		try {
 			ds = new DatagramSocket(port);
@@ -68,6 +68,9 @@ class ReceiverThread extends Thread {
 	}
 
 	public void checkForImage() {
+
+
+
 		DatagramPacket p = new DatagramPacket(buffer, buffer.length); 
 		try {
 			ds.receive(p);
@@ -82,7 +85,7 @@ class ReceiverThread extends Thread {
 
 		// We need to unpack JPG and put it in the PImage img
 		img.loadPixels();
-		
+
 		try {
 			// Make a BufferedImage out of the incoming bytes
 			BufferedImage bimg = ImageIO.read(bais);
@@ -94,6 +97,7 @@ class ReceiverThread extends Thread {
 		}
 		// Update the PImage pixels
 		img.updatePixels();
+
 	}
 
 
