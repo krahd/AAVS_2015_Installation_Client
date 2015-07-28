@@ -502,7 +502,6 @@ public class Client extends PApplet {
 
 		// if we get the message /active and we get the parameter "1" then we are the active, else we are not
 
-		String adr = msg.address();		
 		if(msg.checkAddrPattern("/active") == true) {			
 			int a = (msg.get(0).intValue());			
 			activeClient = a == 1;			
@@ -511,8 +510,10 @@ public class Client extends PApplet {
 			localMovie = new Movie(this, filename);
 		}
 
+	}
 
-
+	void movieEvent(Movie m) {
+		m.read();
 	}
 
 	static public void main(String args[]) { 
