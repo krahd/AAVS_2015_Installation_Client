@@ -497,9 +497,10 @@ public class Client extends PApplet {
 	void oscEvent(OscMessage msg) {
 
 		// if we get the message /active and we get the parameter "1" then we are the active, else we are not
-		String pattern = msg.addrPattern();
-		System.out.print("addr: " + pattern + "/");
-		System.out.println(msg.arguments()[0]);
+		
+		// String pattern = msg.addrPattern();
+		// System.out.print("addr: " + pattern + "/");
+		// System.out.println(msg.arguments()[0]);
 		
 		
 		if(msg.checkAddrPattern("/active") == true) {			

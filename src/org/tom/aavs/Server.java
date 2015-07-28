@@ -54,7 +54,7 @@ public class Server extends PApplet {
 	MIDI midiBackground;
 	
 	private boolean transmittingFrames = true;
-	private boolean transmittingCommands = true;
+	private boolean transmittingCommands = false;
 	
 	PVector frameCoordinates = new PVector(-1000, -1000);
 	
@@ -205,17 +205,36 @@ public class Server extends PApplet {
 		fill(0);
 
 		// 4 "views"
+		if (activeClient == 0) {
+			stroke (255, 0, 0);			
+		} else {
+			stroke (255, 255, 255);
+		}		
 		rect(viewX + viewSeparation, viewY + viewSeparation, viewWidth, viewHeight);
+		if (activeClient == 1) {
+			stroke (255, 0, 0);			
+		} else {
+			stroke (255, 255, 255);
+		}
 		rect(viewX + viewWidth + viewSeparation * 2, viewY + viewSeparation, viewWidth, viewHeight);
+		if (activeClient == 2) {
+			stroke (255, 0, 0);			
+		} else {
+			stroke (255, 255, 255);
+		}
 		rect(viewX + viewSeparation, viewY + viewHeight + viewSeparation * 2, viewWidth, viewHeight);
+		if (activeClient == 3) {
+			stroke (255, 0, 0);			
+		} else {
+			stroke (255, 255, 255);
+		}
 		rect(viewX + viewWidth + viewSeparation * 2, viewY + viewHeight + viewSeparation * 2, viewWidth, viewHeight);
-
+		stroke (255, 255, 255);
 		rect(viewSeparation, viewSeparation, 510, 510);
 
 		frameCoordinates.x = 0;
 		frameCoordinates.y = 0;
 		
-	
 		
 		if (receivedMessagesFromAllClients()) {
 
