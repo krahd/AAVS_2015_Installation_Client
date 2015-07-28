@@ -147,8 +147,6 @@ public class Client extends PApplet {
 		noFill();
 	}
 
-
-
 	private void doCalibration() {
 		if (vertices.size() >= 4) {
 			scaleFactor.x = (calibrationVertices[1].x - calibrationVertices[0].x) / (vertices.get(1).x - vertices.get(0).x);
@@ -156,7 +154,6 @@ public class Client extends PApplet {
 
 			positionFactor.x = calibrationVertices[0].x - vertices.get(0).x ;
 			positionFactor.y = calibrationVertices[0].y - vertices.get(0).y;
-
 		}
 	}
 
@@ -233,6 +230,7 @@ public class Client extends PApplet {
 
 		return res;
 	}
+	
 
 	public void draw() {
 
@@ -389,7 +387,7 @@ public class Client extends PApplet {
 	public void keyPressed() {
 
 		switch (key) {
-
+		
 		case 'c':
 			calibratingVertex = 0;
 			calibrating = true;
@@ -493,23 +491,26 @@ public class Client extends PApplet {
 		case ' ':
 			debug = !debug;
 			break;
-
-
 		}
 	}
 
 	void oscEvent(OscMessage msg) {
 
 		// if we get the message /active and we get the parameter "1" then we are the active, else we are not
-
+		String pattern = msg.addrPattern();
+		System.out.print("addr: " + pattern + "/");
+		System.out.println(msg.arguments()[0]);
+		
+		
 		if(msg.checkAddrPattern("/active") == true) {			
-			int a = (msg.get(0).intValue());			
+			int a = (Integer) (msg.arguments()[0]);			
 			activeClient = a == 1;			
-		} else if (msg.checkAddrPattern("/play")) {
-			String filename = msg.get(0).stringValue();
+			
+		} else if (msg.checkAddrPattern("/play")) {			
+			System.out.println("received play ");			
+			String filename = (String) msg.arguments()[0];
 			localMovie = new Movie(this, filename);
 		}
-
 	}
 
 	void movieEvent(Movie m) {

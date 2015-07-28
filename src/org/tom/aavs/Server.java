@@ -64,6 +64,7 @@ public class Server extends PApplet {
 	public void setup() {
 		size (1400, 800, P3D);
 		frameRate(30);
+		currentFilename = "";
 		
 		trackedFrames = new Frame[totalClients];
 		receivedTrackingClient = new boolean[totalClients];
@@ -112,6 +113,7 @@ public class Server extends PApplet {
 		}
 
 		activeMessage = new OscMessage("/active");
+		videoPlayMessage = new OscMessage("/play");
 		
 		midiBackground = new MIDI(this, 0);		 // second parameter is the device number
 		currentVideo = null;		
@@ -170,17 +172,21 @@ public class Server extends PApplet {
 		
 		// TODO select video in function of coords in getVideoFilename()
 		
-		if (currentVideo == null || !currentFilename.equals(getVideoFilename(coords))) {
-			
-			currentVideo = new Movie (this, getVideoFilename(coords)); //TODO make it relative path			
+	
+		if (!currentFilename.equals(getVideoFilename(coords))) {
+			currentFilename = getVideoFilename(coords);
+			currentVideo = new Movie (this, currentFilename); //TODO make it relative path			
 			currentVideo.loop();
 			
 			if (transmittingCommands) {
 				sendPlayCommand();
 			}
+			
 		}
 		
-		img = currentVideo;
+		
+		img = currentVideo;		
+		
 	//	System.out.println(img.width + " " + img.height);
 		
 		
@@ -296,7 +302,6 @@ public class Server extends PApplet {
 			sendImage(img, clients[activeClient], clientDatagramPort);
 		}
 		
-
 		drawStatus();
 
 		trackedFrames[0].draw((PApplet)this, viewX + viewSeparation, viewY + viewSeparation, 0.66f, img);
@@ -309,29 +314,32 @@ public class Server extends PApplet {
 	private void sendPlayCommand() {
 		videoPlayMessage.clearArguments();
 		videoPlayMessage.add(currentFilename);
-		oscP5.send(videoPlayMessage, clientAddresses[0]); // TODO send to activeClient
+		oscP5.send(videoPlayMessage, clientAddresses[activeClient]); 
 		
 	}
 
 	private void activateClient(int which) {
 		
-		// fixme! (we only have one client in testing) // TODO //FIXME 
-		/*
+		// fixme! (we only have one client in testing)  
+		
 		for (int i = 0; i < totalClients; i++) {
 			activeMessage.clearArguments();
-			activeMessage.add(i == which);
-			oscP5.send(activeMessage, clientAddresses[i]);	
+			
+			int[] params = new int[1];
+			if (i == which) {
+				params[0] = 1;
+			}
+			else {
+				params[0] = 0;
+			}
+					
+ 			activeMessage.add(params); 			
+ 			
+			if (i == 0) { //TODO delete this is because we have only one client
+				oscP5.send(activeMessage, clientAddresses[i]);
+			}
 		}
-		*/
-		
-		activeMessage.clearArguments();
-		if (0 == which) {
-			activeMessage.add(1);
-		} else {
-			activeMessage.add(0);
-		}
-		
-		oscP5.send(activeMessage, clientAddresses[0]); // TODO send to activeClient
+				
 	}
 
 	private boolean receivedMessagesFromAllClients() {
@@ -404,6 +412,10 @@ public class Server extends PApplet {
 			
 		case 's':
 			midiBackground.note(60, 128); // starting people sound
+			break;
+			
+		case 'm':
+			sendPlayCommand();
 			break;
 		}
 	}
