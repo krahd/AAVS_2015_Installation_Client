@@ -22,7 +22,7 @@ class ReceiverThread extends Thread {
 	// A byte array to read into (max size of 65536, could be smaller) // 41760
 	byte[] buffer = new byte[65536]; 
 
-	boolean running;    // Is the thread running?  Yes or no?
+	boolean running;     
 	boolean available;   
 	Client parent;
 
@@ -43,7 +43,7 @@ class ReceiverThread extends Thread {
 	}
 
 	PImage getImage() {
-		// We set available equal to false now that we've gotten the data
+		// we set available equal to false now that we've gotten the data
 		available = false;
 		return img;
 	}
@@ -58,7 +58,7 @@ class ReceiverThread extends Thread {
 		super.start();
 	}
 
-	// We must implement run, this gets triggered by start()
+	//  run is triggered by start()
 	public void run () {
 		while (running) {
 			checkForImage();
@@ -68,9 +68,6 @@ class ReceiverThread extends Thread {
 	}
 
 	public void checkForImage() {
-
-
-
 		DatagramPacket p = new DatagramPacket(buffer, buffer.length); 
 		try {
 			ds.receive(p);
