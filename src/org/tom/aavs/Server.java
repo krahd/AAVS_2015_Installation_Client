@@ -51,6 +51,7 @@ public class Server extends PApplet {
 	
 	float stageSide = 10f;
 	MIDI [] midiBackground;
+	MIDI midiRain;
 	
 	MIDI test;
 	
@@ -124,8 +125,8 @@ public class Server extends PApplet {
 		currentVideo = null;	
 		
 		test = new MIDI(this, 0);
-		
-
+		midiRain = new MIDI (this, 5);
+		midiRain.note(60, 128); // rain is always on.		
 	}
 	
 	public void movieEvent(Movie m) {
@@ -366,6 +367,13 @@ public class Server extends PApplet {
 				oscP5.send(activeMessage, clientAddresses[i]);
 			}
 		}
+		
+		for (int i = 0; i < totalClients; i++) {
+			if (i != which) {
+				midiBackground[i].note(60,  0);
+			}
+		}
+		midiBackground[which].note(60, 127);
 				
 	}
 
