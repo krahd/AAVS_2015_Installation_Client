@@ -92,7 +92,7 @@ public final class GrahamScan {
         }
 
         List<PVector> PVectors = new ArrayList<PVector>();
-
+        
         for(int i = 0; i < xs.length; i++) {
             PVectors.add(new PVector(xs[i], ys[i]));
         }
@@ -109,7 +109,6 @@ public final class GrahamScan {
      * @param PVectors the list of PVectors.
      * @return       the convex hull of the PVectors created from the list
      *               <code>PVectors</code>.
-     * @throws IllegalArgumentException if all PVectors are collinear or if there
      *                                  are less than 3 unique PVectors present.
      */
     public static List<PVector> getConvexHull(List<PVector> PVectors) throws IllegalArgumentException {
@@ -155,6 +154,20 @@ public final class GrahamScan {
 
         return new ArrayList<PVector>(stack);
     }
+    
+	protected static PVector centroid(List<PVector> v) {
+		
+		PVector res = new PVector (0,0);
+		
+		for (PVector p : v) {
+			res.x += p.x;
+			res.y += p.y;
+		}
+		res.x /= v.size();
+		res.y /= v.size();
+		
+		return res;
+	}
 
     /**
      * Returns the PVectors with the lowest y coordinate. In case more than 1 such
@@ -195,7 +208,7 @@ public final class GrahamScan {
         for(int i = 1; i < PVectors.size(); i++) {
 
             PVector temp = PVectors.get(i);
-            if (temp.y + temp.x < lowest.y + lowest.x) lowest = temp;
+            if ( temp.x - temp.y < lowest.x - lowest.y) lowest = temp;
             
         }
 
@@ -216,7 +229,8 @@ public final class GrahamScan {
      */
     protected static Set<PVector> getSortedPVectorSet(List<PVector> PVectors) {
 
-        final PVector lowest = getLowestPVector(PVectors);
+       // final PVector lowest = getLowestPVector(PVectors);
+    	 final PVector lowest = centroid(PVectors);
 
         TreeSet<PVector> set = new TreeSet<PVector>(new Comparator<PVector>() {
             @Override
