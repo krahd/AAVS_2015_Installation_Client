@@ -53,6 +53,12 @@ public class Server extends PApplet {
 	private PVector[] kinects;
 	
 	float stageSide = 10f;
+	MIDI midiBackground;
+	
+	private boolean transmitting = false;
+	
+	PVector frameCoordinates = new PVector(-1000, -1000);
+	
 	
 	public void setup() {
 		size (1400, 800, P3D);
@@ -62,7 +68,9 @@ public class Server extends PApplet {
 		clients = new String[totalClients];
 		clientAddresses = new NetAddress[totalClients];
 		kinects = new PVector[totalClients];
-		
+	
+		for (int i = 0; i < totalClients; i++) kinects[i] = new PVector();
+	
 		kinects[0].x = 0;
 		kinects[0].y = 0;
 		
@@ -102,6 +110,8 @@ public class Server extends PApplet {
 		}
 
 		activeMessage = new OscMessage("/active");
+		
+		midiBackground = new MIDI(this, 0);		 // second parameter is the device number
 
 	}
 	
@@ -145,8 +155,13 @@ public class Server extends PApplet {
 	}
 
 
-	public PImage getVideoFrame (float x, float y, float rot) {
-		PImage img = loadImage("bridge.jpg"); // we should get the image from the video file instead
+	public PImage getVideoFrame (PVector coords) {
+		PImage img = loadImage("bridge.jpg"); 
+		
+		//TODO
+		/* get the corresponding frame from the video and return it
+		 * also this method needs to manage the playing / stopping the videos
+		 */
 		return img;
 	}
 
@@ -165,15 +180,17 @@ public class Server extends PApplet {
 
 		rect(viewSeparation, viewSeparation, 510, 510);
 
-		PImage img = getVideoFrame (0,0,0);
-
-
+		frameCoordinates.x = -10000;
+		frameCoordinates.y = -10000;
+		
+	
+		
 		if (receivedMessagesFromAllClients()) {
 
 			/* 	
 			 * need to do the following:
 
-			  		locate frame in 3D space
+			  		locate frame in 2D space
 					decide which module is the active module
 					getFrameToProject (currentState, location3D)
 					broadcast modules off
@@ -183,15 +200,46 @@ public class Server extends PApplet {
 			 */
 
 			/*
-			 *  locate frame in 3D space
+			 *  locate frame in 2D space
 			 
 			 		find the frame with the biggest area (Active frame)
-					find the secondary frame
+					find the secondary frame // 
 					distance (depending on which frame active = x or y)
 					distance to center = y or x
 			
-			 calibration with point
+			draw the location on the location part of the interface
 			
+			*/
+			
+			int active = 0;
+			float maxArea = trackedFrames[0].getArea();
+			for (int i = 1; i < totalClients; i++) {
+				if (trackedFrames[i].getArea() > maxArea) {
+					maxArea = trackedFrames[i].getArea();
+					active = i;
+				}
+			}
+			
+			int side = (active + 1) % 4;
+			if (!(trackedFrames[side].totalPoints >= 2)) {
+				side = (side + 2) % 4;				
+			}
+			
+			
+			if (active % 2 == 0) { 
+				frameCoordinates.x = trackedFrames[active].centroid().x;
+				frameCoordinates.y = trackedFrames[side].centroid().y;
+			} else {
+				frameCoordinates.x = trackedFrames[side].centroid().x;
+				frameCoordinates.y = trackedFrames[active].centroid().y;
+			}
+			
+			fill (255, 0, 0);
+			ellipse (frameCoordinates.x, frameCoordinates.y, 10, 10);
+			
+								
+			/*
+						
 			 if coordinate in area then 
 					if not playing video load corresponding video; current frame = 0
 			
@@ -200,21 +248,25 @@ public class Server extends PApplet {
 						send frame 
 						advance current frame
 				
-			else if coordinate in area-traverse
+			else if coordinate in area-traversing (path)
 				play corresponding sound
 				if not video loaded, load video
 				get corresponding frame (x,y)
 				send frame
-			
+									
 			
 			update background sound(s)
 			*/
 			
 			
 
-		}				
+		}	
+		
+		PImage img = getVideoFrame (frameCoordinates);
 
-		sendImage(img, clients[activeClient], clientDatagramPort);
+		if (transmitting) {
+			sendImage(img, clients[activeClient], clientDatagramPort);
+		}
 		activateClient(activeClient);
 
 		drawStatus();
@@ -228,7 +280,7 @@ public class Server extends PApplet {
 
 	private void activateClient(int which) {
 		
-		// fixme! (we only have one client in testing)
+		// fixme! (we only have one client in testing) // TODO //FIXME 
 		/*
 		for (int i = 0; i < totalClients; i++) {
 			activeMessage.clearArguments();
@@ -317,7 +369,9 @@ public class Server extends PApplet {
 			activeClient = keyCode-48;			
 			break;
 			
-
+		case 's':
+			midiBackground.note(60, 128); // starting people sound
+			break;
 		}
 	}
 

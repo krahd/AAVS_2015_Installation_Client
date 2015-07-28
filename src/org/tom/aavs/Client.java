@@ -18,17 +18,14 @@ import netP5.*;
 
 public class Client extends PApplet {
 
-	private String serverIP = "127.0.0.1"; // "192.168.0.11"; // this should be taken from a txt
+	private String serverIP = "127.0.0.1"; // "192.168.0.11"; should be taken from the config.
 	private int serverPort = 11300;
-	private String clientIP = "127.0.0.1"; // "192.168.0.1";
 	private int clientPort = 11200;
-	private int clientDatagramPort = 11100;
 	NetAddress serverLocation;
-	private String pp;
 
 	public static final boolean FULLSCREEN = true;
-	
-	private boolean transmitting = true;
+
+	private boolean transmitting = false;
 	private boolean kinectPresent = true;
 
 	//Capture video;
@@ -59,24 +56,33 @@ public class Client extends PApplet {
 	ReceiverThread thread;
 
 	boolean activeClient;
-	
+
 	boolean calibrating;
-	
+	boolean keyCalibrating;
+	boolean shiftPressed;
+
 	PVector scaleFactor;
+	PVector positionFactor;
 	int calibratingVertex;
-	PVector [] scaleVertices;
-	
+	PVector [] calibrationVertices;
+
+	private final String CONFIG_FILE = "/Users/tom/devel/eclipse workspace/AAVS/bin/data/config.txt";
+
 
 	public void setup() {
-		size(1024, 768, P3D);
+		//size(1024, 768, P3D);
+		size(displayWidth, displayHeight, P3D);
 
 		activeClient = true;
 		calibrating = false;
-		
+		keyCalibrating = false;
+		shiftPressed = false;
+
 		scaleFactor = new PVector (1,1);
+		positionFactor = new PVector (0, 0);
 
 		vertices = new ArrayList(totalVertices);
-		scaleVertices = new PVector[4];
+		calibrationVertices = new PVector[4];
 
 		if (kinectPresent) {
 			kinect = new Kinect(this);
@@ -92,7 +98,9 @@ public class Client extends PApplet {
 		}
 
 		// video.start();
+
 		img = loadImage("bridge.jpg");
+
 
 		oscP5 = new OscP5(this, clientPort);
 		serverLocation = new NetAddress(serverIP, serverPort);
@@ -100,29 +108,82 @@ public class Client extends PApplet {
 		trackMessage = new OscMessage("/frame");
 
 		thread = new ReceiverThread(this, cameraWidth, cameraHeight);
+
 		thread.start();
+		
+		float sx = 1;
+		float sy = 1;
+		float tx = 0;
+		float ty = 0;
+
+		try {
+			String[] lines = loadStrings(CONFIG_FILE);  // load the configuration data
+			/* lines format is as follows		 
+		 int scaleX
+		 int scaleY
+		 int translateX
+		 int translateY		 
+			 */
+
+			 sx = new Float(lines[0]).floatValue();
+			 sy = new Float(lines[1]).floatValue();
+			 tx = new Float(lines[2]).floatValue();
+			 ty = new Float(lines[3]).floatValue();
+		} catch (Exception e) {
+			System.out.println("config file doesn't exist, using default values.");
+		}
+
+		scaleFactor.x = sx;
+		scaleFactor.y = sy;
+		positionFactor.x = tx;
+		positionFactor.y = ty;
+
 	}
-	
+
+
+
 	private void doCalibration() {
-		scaleFactor.x = (vertices.get(1).x - vertices.get(0).x) / (scaleVertices[1].x - scaleVertices[0].x);
-		scaleFactor.y = (vertices.get(3).y - vertices.get(2).y) / (scaleVertices[3].y - scaleVertices[2].y);
+		if (vertices.size() >= 4) {
+			scaleFactor.x = (calibrationVertices[1].x - calibrationVertices[0].x) / (vertices.get(1).x - vertices.get(0).x);
+			scaleFactor.y =  (calibrationVertices[2].y - calibrationVertices[1].y) / (vertices.get(2).y - vertices.get(1).y);
+
+			positionFactor.x = calibrationVertices[0].x - vertices.get(0).x ;
+			positionFactor.y = calibrationVertices[0].y - vertices.get(0).y;
+
+		}
 	}
 
 	public void mouseClicked() {
 		if (calibrating) {
-			scaleVertices[calibratingVertex] = new PVector(mouseX, mouseY);
+			calibrationVertices[calibratingVertex] = new PVector(mouseX, mouseY);
 			calibratingVertex++;
-			
+
 			if (calibratingVertex == totalVertices) {
 				doCalibration();
-				calibrating = false;
+				calibrating = false;			
 			}
 		} 
 	}
 
+	public void saveCalibration() {
+		String [] lines = new String[4];
+		lines[0] = "" + scaleFactor.x;
+		lines[1] = "" + scaleFactor.y;
+		lines[2] = "" + positionFactor.x;
+		lines[3] = "" + positionFactor.y;
+		saveStrings (CONFIG_FILE, lines);
+		System.out.println("config saved");
+	}
+
 	public void draw() {
 
-		background(0);
+		background(128);
+		fill (255,0,0);
+		rect(0, 0, 50, 50);
+		rect(width-50, 0, 50, 50);
+		rect(0, height-50, 50, 50);
+		rect(width-50, height-50, 50, 50);
+
 
 		if (kinectPresent) {
 			scale(cameraScaleFactor);
@@ -155,8 +216,7 @@ public class Client extends PApplet {
 				}
 			}
 		}
-
-		if (!kinectPresent) {
+		else { // kinect !present
 			if (vertices.size() < 4) {
 				vertices.clear();
 
@@ -168,9 +228,19 @@ public class Client extends PApplet {
 
 
 		stroke (255, 0 ,0);
-		System.out.println(vertices.size());
+
+		pushMatrix();		
+		translate(positionFactor.x, positionFactor.y);
+		scale(scaleFactor.x, scaleFactor.y);
+
 		for (int i = 0; i < vertices.size(); i++) {
+
+
 			ellipse(vertices.get(i).x, vertices.get(i).y, 10, 10);
+			pushMatrix();
+			if (i % 2 == 0) translate(-30, 0);
+			text("" + i , vertices.get(i).x + 15, vertices.get(i).y);
+			popMatrix();
 
 		}
 
@@ -202,9 +272,10 @@ public class Client extends PApplet {
 			oscP5.send(trackMessage, serverLocation);
 		}
 
-
-		if (thread.available()) {			
-			img = thread.getImage();
+		if (transmitting) {
+			if (thread.available()) {			
+				img = thread.getImage();
+			}
 		}
 
 		if (activeClient) {
@@ -220,21 +291,43 @@ public class Client extends PApplet {
 			}
 		}
 
+		popMatrix();
+
+
+		if (calibrating) {
+			fill(255);
+			text("calibrating", 100, 700);
+		}
+		if (keyCalibrating) {
+			fill(255);
+			text("keyboard calibrating", 100, 700);
+		}
 	}
 
 	public void captureEvent(Capture c) {
 		c.read();
 	}
 
+
+	public void keyReleased(){
+		if (keyCode == SHIFT) {
+			shiftPressed = false;
+		}
+	}
+
 	public void keyPressed() {
 
 		switch (key) {
-		
+
 		case 'c':
 			calibratingVertex = 0;
 			calibrating = true;
 			break;
-			
+
+		case 'C':
+			keyCalibrating = !keyCalibrating;
+			break;
+
 		case 'd': 
 			if (kinectPresent) {
 				kinect.toggleDepth();
@@ -266,18 +359,52 @@ public class Client extends PApplet {
 			System.out.println("transmitting: " + transmitting);
 			break;
 
-		case CODED:
-
-			if (kinectPresent) {
-				if (keyCode == UP) {
-					System.out.println("up");
-					deg++;
-				} else if (keyCode == DOWN) {
-					deg--;
-				}
-				deg = constrain(deg, 0, 30);
-				kinect.tilt(deg);
+		case 'u':
+			if (kinectPresent) {				
+				deg++;
 			}
+
+			deg = constrain(deg, 0, 30);
+			kinect.tilt(deg);
+			break;
+
+		case 'j':
+			if (kinectPresent) {
+				deg--;
+			}
+
+			deg = constrain(deg, 0, 30);
+			kinect.tilt(deg);
+			break;
+
+
+		case CODED:
+			float dx = 0, dy = 0;
+			float sx = 0, sy = 0;
+			float sf = 0.01f;
+
+			if (shiftPressed) {
+				switch (keyCode) {
+				case UP: sy = -sf; break;
+				case DOWN: sy = sf; break;
+				case LEFT: sx = -sf; break;
+				case RIGHT: sx = sf; break;			
+				}
+			} else {
+				switch (keyCode) {
+				case UP: dy = -1; break;
+				case DOWN: dy = 1; break;
+				case LEFT: dx = -1; break;
+				case RIGHT: dx = 1; break;
+				case SHIFT: shiftPressed = true; break;
+				}
+			}
+
+			scaleFactor.x += sx;
+			scaleFactor.y += sy;
+			positionFactor.x += dx;
+			positionFactor.y += dy;
+
 			break;
 
 		case 'p':
@@ -286,6 +413,10 @@ public class Client extends PApplet {
 			for (int i = 0; i < totalVertices; i++) {
 				vertices.add(new PVector (random(640), random(480)));
 			}
+			break;
+
+		case 's':
+			saveCalibration();
 			break;
 		}
 	}
@@ -312,5 +443,5 @@ public class Client extends PApplet {
 		}
 
 	}
-	
+
 }

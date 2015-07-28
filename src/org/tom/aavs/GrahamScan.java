@@ -162,6 +162,31 @@ public final class GrahamScan {
      *               1 such PVector exists, the one with the lowest x coordinate
      *               is returned.
      */
+    protected static PVector getLowestXPVector(List<PVector> PVectors) {
+
+        PVector lowest = PVectors.get(0);
+
+        for(int i = 1; i < PVectors.size(); i++) {
+
+            PVector temp = PVectors.get(i);
+
+          /*  if(temp.y < lowest.y || (temp.y == lowest.y && temp.x < lowest.x)) {
+                lowest = temp;
+            }
+            */
+            if (temp.y + temp.x < lowest.y + lowest.x) lowest = temp;
+            
+        }
+
+        return lowest;
+    }
+    
+    /**
+     * Returns the PVectors with the lowest y + x coordinate (top left)
+     * 
+     * @param PVectors the list of PVectors to return the lowest PVector from.
+     * @return       the PVectors with the lowest x + y coordinate. 
+     */
     protected static PVector getLowestPVector(List<PVector> PVectors) {
 
         PVector lowest = PVectors.get(0);
@@ -170,18 +195,22 @@ public final class GrahamScan {
 
             PVector temp = PVectors.get(i);
 
-            if(temp.y < lowest.y || (temp.y == lowest.y && temp.x < lowest.x)) {
+          /*  if(temp.y < lowest.y || (temp.y == lowest.y && temp.x < lowest.x)) {
                 lowest = temp;
             }
+            */
+            if (temp.y + temp.x < lowest.y + lowest.x) lowest = temp;
+            
         }
 
         return lowest;
     }
 
+
     /**
      * Returns a sorted set of PVectors from the list <code>PVectors</code>. The
      * set of PVectors are sorted in increasing order of the angle they and the
-     * lowest PVector <tt>P</tt> make with the x-axis. If tow (or more) PVectors
+     * lowest PVector <tt>P</tt> make with the x-axis. If two (or more) PVectors
      * form the same angle towards <tt>P</tt>, the one closest to <tt>P</tt>
      * comes first.
      *

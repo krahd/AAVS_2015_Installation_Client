@@ -9,5 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/processing video"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/P5 OpenGL"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OSCP5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/rwmidi-palmer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
