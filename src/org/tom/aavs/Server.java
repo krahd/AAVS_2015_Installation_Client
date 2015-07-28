@@ -438,7 +438,7 @@ public class Server extends PApplet {
 						(int)random (640), (int)random (480),
 						(int)random (640), (int)random (480)
 						);
-			}a
+			}
 			break;
 			
 		case '0': case '1': case '2': case '3':			
