@@ -50,7 +50,7 @@ public class Server extends PApplet {
 	private PVector[] kinects;
 	
 	float stageSide = 10f;
-	MIDI midiBackground;
+	MIDI [] midiBackground;
 	
 	private boolean transmittingFrames = true;
 	private boolean transmittingCommands = false;
@@ -114,7 +114,10 @@ public class Server extends PApplet {
 		activeMessage = new OscMessage("/active");
 		videoPlayMessage = new OscMessage("/play");
 		
-		midiBackground = new MIDI(this, 0);		 // second parameter is the device number
+		midiBackground = new MIDI[totalClients];
+		for (int i = 0; i < totalClients; i ++) {
+			midiBackground[i] = new MIDI(this, i);		 // second parameter is the device number
+		}
 		currentVideo = null;		
 
 	}
@@ -429,7 +432,9 @@ public class Server extends PApplet {
 			break;
 			
 		case 's':
-			midiBackground.note(60, 128); // starting people sound
+			for (int i = 0; i < totalClients; i++) {
+				midiBackground[i].note(60, 128); 
+			}
 			break;
 			
 		case 'm':
