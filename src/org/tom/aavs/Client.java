@@ -174,6 +174,58 @@ public class Client extends PApplet {
 		saveStrings (CONFIG_FILE, lines);
 		System.out.println("config saved");
 	}
+	
+	public ArrayList<PVector> stupidOrdering(ArrayList<PVector> v) {
+		ArrayList<PVector> res = new ArrayList<PVector>(4);
+		
+		if (v.size() < 4) return v;
+		
+		//lowest
+		PVector v0 = v.get(0);
+		int f = 0;
+	
+		for (int i = 1; i < v.size(); i++) {
+			if (v.get(i).x + v.get(i).y < v0.x + v0.y) {
+				v0 = v.get(i);
+				f = i;
+			}
+		}		
+		v.remove(f);
+		
+		// lowest y ! v0
+		PVector v1 = v.get(0);
+		for (int i = 1; i < v.size(); i++) {
+			if (v.get(i).y < v1.y) { 
+				v1 = v.get(i);
+			}
+		}
+		
+		// lowest x ! v0	
+		PVector v3 = v.get(0);		
+		for (int i = 1; i < v.size(); i++) {
+			if (v.get(i).x < v3.x) { 
+				v3 = v.get(i);		
+			}
+		}
+
+		// highest x+y
+
+		PVector v2 = v.get(0);	
+		for (int i = 1; i < v.size(); i++) {
+			if (v.get(i).x + v.get(i).y > v0.x + v0.y) {
+				v0 = v.get(i);				
+			}
+		}		
+		
+		res.clear();
+		res.add(v0);
+		res.add(v1);
+		res.add(v2);
+		res.add(v3);
+		
+		
+		return res;
+	}
 
 	public void draw() {
 
@@ -235,7 +287,6 @@ public class Client extends PApplet {
 
 		for (int i = 0; i < vertices.size(); i++) {
 
-
 			ellipse(vertices.get(i).x, vertices.get(i).y, 10, 10);
 			pushMatrix();
 			if (i % 2 == 0) translate(-30, 0);
@@ -245,11 +296,25 @@ public class Client extends PApplet {
 		}
 
 		if (vertices.size() > 0) {
-			// let's sort the vertices out
+			// sorting vertices
 
-			Set<PVector> tempSet = GrahamScan.getSortedPVectorSet(vertices);
+			
+			/*Set<PVector> tempSet = GrahamScan.getSortedPVectorSet(vertices);
+			
+			
 			vertices.clear();
 			vertices.addAll(tempSet);
+			
+			if (vertices.size() > 4) vertices = (ArrayList<PVector>) GrahamScan.getConvexHull(vertices);
+			
+			*/
+			
+			Collections.sort(vertices, new TriangleVectorComparator(new PVector(0,0)));
+
+						
+			// vertices = stupidOrdering(vertices);
+			
+			
 		}
 
 		if (transmitting) {

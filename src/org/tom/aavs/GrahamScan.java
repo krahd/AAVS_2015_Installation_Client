@@ -68,6 +68,9 @@ public final class GrahamScan {
         return true;
     }
 
+    
+ 
+    
     /**
      * Returns the convex hull of the PVectors created from <code>xs</code>
      * and <code>ys</code>. Note that the first and last PVector in the returned
@@ -170,11 +173,9 @@ public final class GrahamScan {
 
             PVector temp = PVectors.get(i);
 
-          /*  if(temp.y < lowest.y || (temp.y == lowest.y && temp.x < lowest.x)) {
+            if(temp.y < lowest.y || (temp.y == lowest.y && temp.x < lowest.x)) {
                 lowest = temp;
             }
-            */
-            if (temp.y + temp.x < lowest.y + lowest.x) lowest = temp;
             
         }
 
@@ -194,11 +195,6 @@ public final class GrahamScan {
         for(int i = 1; i < PVectors.size(); i++) {
 
             PVector temp = PVectors.get(i);
-
-          /*  if(temp.y < lowest.y || (temp.y == lowest.y && temp.x < lowest.x)) {
-                lowest = temp;
-            }
-            */
             if (temp.y + temp.x < lowest.y + lowest.x) lowest = temp;
             
         }
