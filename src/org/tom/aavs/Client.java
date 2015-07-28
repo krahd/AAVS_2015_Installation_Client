@@ -31,7 +31,7 @@ public class Client extends PApplet {
 	public static final boolean FULLSCREEN = true;
 
 	private boolean transmitting = true;
-	protected boolean receivingCommands = true;
+	protected boolean receivingCommands = false;
 	private boolean kinectPresent = true;
 	private boolean debug = true;
 
