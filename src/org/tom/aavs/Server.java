@@ -63,6 +63,9 @@ public class Server extends PApplet {
 	Movie currentVideo;
 	String currentFilename;
 	
+	// int MIDI_CHANNELS[] = {0, 1, 2, 3, 4}; // tom's computer
+	int MIDI_CHANNELS[] = {0, 2, 3, 4, 5}; // ashtray
+	
 	public void setup() {
 		size (1400, 800, P3D);
 		frameRate(30);
@@ -120,7 +123,7 @@ public class Server extends PApplet {
 		
 		midiBackground = new MIDI[totalClients];
 		for (int i = 0; i < totalClients; i ++) {
-			midiBackground[i] = new MIDI(this, i);		 // second parameter is the device number
+			midiBackground[i] = new MIDI(this, MIDI_CHANNELS[i]);		 // second parameter is the device number
 		}
 		currentVideo = null;	
 		
