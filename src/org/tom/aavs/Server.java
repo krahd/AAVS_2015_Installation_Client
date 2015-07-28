@@ -1,25 +1,24 @@
 package org.tom.aavs;
 
-import processing.*;
-import processing.core.*;
-import processing.video.*;
-import gab.opencv.*;
-
-import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 
-import org.openkinect.freenect.*;
-import org.openkinect.processing.*;
+import javax.imageio.ImageIO;
 
-import oscP5.*;
-import netP5.*;
-
-import java.net.*;
-import java.awt.image.*;
-
-import javax.imageio.*;
-
-import java.io.*;
+import netP5.NetAddress;
+import oscP5.OscMessage;
+import oscP5.OscP5;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
+import processing.video.Movie;
 
 
 public class Server extends PApplet {

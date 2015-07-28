@@ -1,20 +1,24 @@
 package org.tom.aavs;
 
 
-import processing.*;
-import processing.core.*;
-import processing.video.*;
-import gab.opencv.*;
+import gab.opencv.Contour;
+import gab.opencv.OpenCV;
 
-import java.awt.*;
-import java.awt.List;
-import java.util.*;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Set;
 
-import org.openkinect.freenect.*;
-import org.openkinect.processing.*;
+import netP5.NetAddress;
 
-import oscP5.*;
-import netP5.*;
+import org.openkinect.processing.Kinect;
+
+import oscP5.OscMessage;
+import oscP5.OscP5;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
+import processing.video.Capture;
+import processing.video.Movie;
 
 public class Client extends PApplet {
 
