@@ -71,7 +71,7 @@ public class Client extends PApplet {
 
 
 	public void setup() {
-		//size(1024, 768, P3D);
+		//size(1024, 768, P3D);	
 		size(displayWidth, displayHeight, P3D);
 
 		activeClient = true;
@@ -294,7 +294,7 @@ public class Client extends PApplet {
 			vertices.clear();
 			vertices.addAll(tempSet);
 
-			if (vertices.size() > 4) vertices = (ArrayList<PVector>) GrahamScan.getConvexHull(vertices);
+			// if (vertices.size() > 4) vertices = (ArrayList<PVector>) GrahamScan.getConvexHull(vertices);
 			// Collections.sort(vertices, new TriangleVectorComparator(new PVector(0,0)));
 			// vertices = stupidOrdering(vertices);
 		}

@@ -82,6 +82,7 @@ class ReceiverThread extends Thread {
 
 		// We need to unpack JPG and put it in the PImage img
 		img.loadPixels();
+		
 		try {
 			// Make a BufferedImage out of the incoming bytes
 			BufferedImage bimg = ImageIO.read(bais);

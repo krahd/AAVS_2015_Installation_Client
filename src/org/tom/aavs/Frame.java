@@ -80,7 +80,7 @@ public class Frame {
 		p5.translate(x, y);
 		p5.scale(scale, scale);
 
-		if (v.size() >= 3) {
+		if (v.size() > 3) {
 			p5.beginShape();
 			p5.texture(img);
 			p5.vertex (v.get(0).x , v.get(0).y , 0, 0);

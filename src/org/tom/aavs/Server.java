@@ -124,7 +124,8 @@ public class Server extends PApplet {
 	
 	public void sendImage (PImage img, String ip, int port) {
 		// We need a buffered image to do the JPG encoding
-		BufferedImage bimg = new BufferedImage(img.width,img.height, BufferedImage.TYPE_INT_RGB);
+	
+		BufferedImage bimg = new BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB);
 
 		// Transfer pixels from localFrame to the BufferedImage
 		img.loadPixels();
@@ -162,14 +163,17 @@ public class Server extends PApplet {
 
 	public PImage getVideoFrame (PVector coords) {
 		PImage img;
-		// img = loadImage("bridge.jpg");
+		// img = loadImage("car.jpg");
+		
 		
 		if (currentVideo == null) {
-			currentVideo = new Movie (this, "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers.mov"); //TODO make it relative path
+			currentVideo = new Movie (this, "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers640.mov"); //TODO make it relative path
 			currentVideo.loop();
 		}
 		
-		img = currentVideo.get();
+		img = currentVideo;
+	//	System.out.println(img.width + " " + img.height);
+		
 		
 		//TODO
 		/* get the corresponding frame from the video and return it
