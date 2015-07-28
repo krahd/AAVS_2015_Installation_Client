@@ -173,6 +173,8 @@ public class Server extends PApplet {
 
 	private String getVideoFilename (PVector coords) {
 		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers640.mov";
+		// this needs still to be coded and these are several videos. 
+		// this configuration should be on a config file
 	}
 
 	public PImage getVideoFrame (PVector coords) {
