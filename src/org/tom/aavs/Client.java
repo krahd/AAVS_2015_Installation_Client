@@ -25,9 +25,9 @@ public class Client extends PApplet {
 
 	public static final boolean FULLSCREEN = true;
 
-	private boolean transmitting = false;
+	private boolean transmitting = true;
 	private boolean kinectPresent = true;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	//Capture video;
 	OpenCV opencv;
@@ -482,6 +482,12 @@ public class Client extends PApplet {
 		case 's':
 			saveCalibration();
 			break;
+			
+		case ' ':
+			debug = !debug;
+			break;
+			
+			
 		}
 	}
 

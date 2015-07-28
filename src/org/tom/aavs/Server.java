@@ -55,9 +55,11 @@ public class Server extends PApplet {
 	float stageSide = 10f;
 	MIDI midiBackground;
 	
-	private boolean transmitting = false;
+	private boolean transmitting = true;
 	
 	PVector frameCoordinates = new PVector(-1000, -1000);
+	
+	Movie currentVideo;
 	
 	
 	public void setup() {
@@ -112,11 +114,14 @@ public class Server extends PApplet {
 		activeMessage = new OscMessage("/active");
 		
 		midiBackground = new MIDI(this, 0);		 // second parameter is the device number
+		currentVideo = null;		
 
 	}
 	
+	public void movieEvent(Movie m) {
+		  m.read();
+	}
 	
-
 	public void sendImage (PImage img, String ip, int port) {
 		// We need a buffered image to do the JPG encoding
 		BufferedImage bimg = new BufferedImage(img.width,img.height, BufferedImage.TYPE_INT_RGB);
@@ -156,7 +161,15 @@ public class Server extends PApplet {
 
 
 	public PImage getVideoFrame (PVector coords) {
-		PImage img = loadImage("bridge.jpg"); 
+		PImage img;
+		// img = loadImage("bridge.jpg");
+		
+		if (currentVideo == null) {
+			currentVideo = new Movie (this, "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers.mov"); //TODO make it relative path
+			currentVideo.loop();
+		}
+		
+		img = currentVideo.get();
 		
 		//TODO
 		/* get the corresponding frame from the video and return it
@@ -180,8 +193,8 @@ public class Server extends PApplet {
 
 		rect(viewSeparation, viewSeparation, 510, 510);
 
-		frameCoordinates.x = -10000;
-		frameCoordinates.y = -10000;
+		frameCoordinates.x = 0;
+		frameCoordinates.y = 0;
 		
 	
 		
