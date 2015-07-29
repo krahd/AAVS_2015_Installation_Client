@@ -337,7 +337,8 @@ public class Client extends PApplet {
 		}
 
 		if (transmitting && !receivingCommands) {
-			if (thread.available()) {			
+			if (thread.available()) {	
+				if (debug) System.out.println("new image available!");
 				img = thread.getImage();
 			}
 		} 
