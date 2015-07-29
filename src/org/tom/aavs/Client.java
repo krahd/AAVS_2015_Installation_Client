@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import netP5.NetAddress;
+import netP5.NetInfo;
 
 import org.openkinect.processing.Kinect;
 
@@ -89,7 +90,8 @@ public class Client extends PApplet {
 	public void setup() {
 		//size(1024, 768, P3D);			
 		size(displayWidth, displayHeight, P3D);
-		frameRate(30);
+		frameRate(30);				
+		
 		try {
 			String[] lines = loadStrings(SETUP_FILE);  // load the configuration data
 			/* lines format is as follows		 
