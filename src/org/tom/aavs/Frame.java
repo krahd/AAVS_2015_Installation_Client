@@ -40,22 +40,12 @@ public class Frame {
 	}
 
 	public float getArea() {
-		if (v.size() < 4) {
+		if (v.size() != 4) {
 			return 0;
 			
-		} else {
-						
-			float area = 0;
-			PVector first = v.get(0);
-			PVector last = first;
-			
-			for (int i = 0; i < v.size(); i++) {
-				PVector next = v.get(i);
-				area += next.x * last.y - last.x * next.y;
-				last = next;
-			}
-			area += first.x * last.y - last.x * first.y;
-			return area / 2;			
+		} else {						
+			float area = v.get(0).dist(v.get(1)) * v.get(0).dist(v.get(2));
+			return area;
 		}
 	}
 

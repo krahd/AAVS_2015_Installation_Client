@@ -80,6 +80,8 @@ public class Server extends PApplet {
 	
 	boolean debug = true;
 
+	private int lastClientMessage;
+
 	public void setup() {
 		size (1400, 800, P3D);		
 		frameRate(30);
@@ -342,6 +344,11 @@ public class Server extends PApplet {
 			}
 		}
 
+		if (trackedFrames[lastClientMessage].getTrackedVerticesSize() == 4) {
+			active = lastClientMessage;
+		}
+		
+		
 		// identifying secondary module
 		int side = (active + 1) % 4;
 		int oppositeSide = (side + 2) % 4;
@@ -358,6 +365,8 @@ public class Server extends PApplet {
 			frameCoordinates.y = trackedFrames[active].centroid().y;
 		}
 
+		activeClient = active;
+		
 		fill (255, 0, 0);
 
 
@@ -371,9 +380,10 @@ public class Server extends PApplet {
 		noFill();
 		stroke(200, 200, 200);
 
+		
+	/// unused as of now
 		for (int i = 0; i < totalAreas; i++) {
 			rect(videoAreas[i][0].x,videoAreas[i][0].y, videoAreas[i][1].x, videoAreas[i][1].y);
-
 		}
 
 		popMatrix();
@@ -474,6 +484,7 @@ public class Server extends PApplet {
 			System.out.println("received a message from client (0..3): " + clientNumber);
 		}
 		
+		lastClientMessage = clientNumber;
 
 		// println("server: client number (last ip byte): " + clientNumber);
 
