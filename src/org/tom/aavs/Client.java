@@ -332,6 +332,10 @@ public class Client extends PApplet {
 				}
 				trackMessage.add(params);
 			}
+			
+			if (debug) {
+				System.out.print(".");
+			}
 
 			oscP5.send(trackMessage, serverLocation);
 		}
