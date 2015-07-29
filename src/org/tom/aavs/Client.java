@@ -79,13 +79,28 @@ public class Client extends PApplet {
 	PVector [] calibrationVertices;
 
 	private final String CONFIG_FILE = "config.txt";
+	
+	private final String SETUP_FILE = "setup.txt";
 
 	Movie localMovie;
+	
+	int whoami = 0;
 
 	public void setup() {
 		//size(1024, 768, P3D);			
 		size(displayWidth, displayHeight, P3D);
 		frameRate(30);
+		try {
+			String[] lines = loadStrings(SETUP_FILE);  // load the configuration data
+			/* lines format is as follows		 
+		 my serverID		 
+			 */
+			whoami = new Integer(lines[0]).intValue();
+			System.out.println("** I am client number (internal): " + whoami);
+			
+		} catch (Exception e) {
+			System.out.println("setup file doesn't exist, assuming I am client 0.");
+		}
 		
 		println("AAVS CLIENT");
 		println("sketchpath: " + sketchPath);
@@ -126,7 +141,7 @@ public class Client extends PApplet {
 
 
 		oscP5 = new OscP5(this, clientPort);
-		serverLocation = new NetAddress(serverIP, serverPort);
+		serverLocation = new NetAddress(serverIP, serverPort + whoami);
 
 		trackMessage = new OscMessage("/frame");
 
