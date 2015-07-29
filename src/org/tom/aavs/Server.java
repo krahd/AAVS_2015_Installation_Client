@@ -458,7 +458,7 @@ public class Server extends PApplet {
 	private void drawStatus() {
 		textSize(14);
 		if (debug) text ("debug mode enabled", 50, 600);
-		
+		if (debug) text ("active client: " + activeClient, 50, 650);
 		fill(255);
 	}
 
