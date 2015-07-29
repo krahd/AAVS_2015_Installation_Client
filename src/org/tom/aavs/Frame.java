@@ -1,9 +1,13 @@
 package org.tom.aavs;
 
-import java.awt.print.Printable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PImage;
+import processing.core.PVector;
 
 public class Frame {
 
@@ -70,7 +74,14 @@ public class Frame {
 		return res;
 	}
 	
-	
+	public int getTrackedVerticesSize() {
+		if (v == null) {
+			return 0;
+		}
+		else {
+			return v.size();
+		}
+	}
 	public void draw(PApplet p5, float x, float y, float scale, PImage img) {
 
 		p5.stroke(255);

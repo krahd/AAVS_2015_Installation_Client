@@ -21,7 +21,7 @@ import processing.core.PVector;
 import processing.video.Movie;
 
 
- 
+
 public class Server extends PApplet {
 
 	/**
@@ -52,70 +52,90 @@ public class Server extends PApplet {
 	boolean[] receivedTrackingClient;
 
 	DatagramSocket ds;  // to stream video
-	
+
 	private PVector[] kinects;
-	
+
 	float stageSide = 10f;
 	MIDI [] midiBackground;
 	MIDI midiRain;
-	
+
 	MIDI test;
-	
+
 	private boolean transmittingFrames = true;
 	private boolean transmittingCommands = false;
-	
+
 	PVector frameCoordinates = new PVector(-1000, -1000);
-	
+
 	Movie currentVideo;
 	String currentFilename;
-	
+
 	// int MIDI_CHANNELS[] = {0, 1, 2, 3, 4}; // tom's computer
 	int MIDI_CHANNELS[] = {0, 2, 3, 4, 5}; // ashtray
+
+	PVector[][] videoAreas; // an array of two pvectors are our areas
+	private int totalAreas = 4;
 	
 	public void setup() {
 		size (1400, 800, P3D);
 		frameRate(30);
 		currentFilename = "";
 		
+		videoAreas = new PVector[totalAreas][2];
+
+		// first area
+		videoAreas [0][0] = new PVector (0, 0); // start point
+		videoAreas [0][1] = new PVector (50, 50); // end point;
+
+		// second area
+		videoAreas [1][0] = new PVector (100, 100); // start pointX
+		videoAreas [1][1] = new PVector (150, 150); // end point;
+
+		// third area
+		videoAreas [2][0] = new PVector (70, 10); // start point
+		videoAreas [2][1] = new PVector (100, 40); // end point;
+		
+		// fourth area
+		videoAreas [3][0] = new PVector (10, 70); // start point
+		videoAreas [3][1] = new PVector (90, 160); // end point;
+
 		trackedFrames = new Frame[totalClients];
 		receivedTrackingClient = new boolean[totalClients];
 		clients = new String[totalClients];
 		clientAddresses = new NetAddress[totalClients];
 		kinects = new PVector[totalClients];
-	
+
 		for (int i = 0; i < totalClients; i++) kinects[i] = new PVector();
-	
+
 		kinects[0].x = 0;
 		kinects[0].y = 0;
-		
+
 		kinects[1].x = stageSide / 2;
 		kinects[1].y = stageSide / 2;
-		
+
 		kinects[2].x = stageSide;
 		kinects[2].y = 0;
-		
+
 		kinects[3].x = stageSide / 2;
 		kinects[3].y = -stageSide / 2;
-		
-		
+
+
 		// todo get this info from txt file
 		for (int i = 0; i < totalClients; i++) {
-			clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  FIXME
-			//clientAddresses[i] = new NetAddress("192.168.0" + (i+1), clientPort);   // 192.168.0."  FIXME
+			clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  TODO load from config file
+			//clientAddresses[i] = new NetAddress("192.168.0" + (i+1), clientPort);   // 192.168.0."  
 			clients[i] = "127.0.0." + (i+1); // clients we are writing to
 
 			//trackedFrames[i] = new Frame (-100, -100, -100, -100, -100, -100, -100, -100);
 			trackedFrames[i] = new Frame (200, 100, 100, 200, 200, 200, 100, 100);					
-				
-					
-					/*
+
+			/*
 					 (int)random (640), (int)random (480),					 
 					(int)random (640), (int)random (480),
 					(int)random (640), (int)random (480),
 					(int)random (640), (int)random (480)
 					);
-					*/
-					
+			 */
+
 			//200, 100, 100, 200, 200, 200);
 
 			receivedTrackingClient[i] = false;
@@ -130,25 +150,25 @@ public class Server extends PApplet {
 
 		activeMessage = new OscMessage("/active");
 		videoPlayMessage = new OscMessage("/play");
-		
+
 		midiBackground = new MIDI[totalClients];
 		for (int i = 0; i < totalClients; i ++) {
 			midiBackground[i] = new MIDI(this, MIDI_CHANNELS[i]);		 // second parameter is the device number
 		}
 		currentVideo = null;	
-		
+
 		test = new MIDI(this, 0);
 		midiRain = new MIDI (this, 5);
 		midiRain.note(60, 128); // rain is always on.		
 	}
-	
+
 	public void movieEvent(Movie m) {
-		  m.read();
+		m.read();
 	}
-	
+
 	public void sendImage (PImage img, String ip, int port) {
 		// We need a buffered image to do the JPG encoding
-	
+
 		BufferedImage bimg = new BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB);
 
 		// Transfer pixels from localFrame to the BufferedImage
@@ -185,39 +205,34 @@ public class Server extends PApplet {
 	}
 
 	private String getVideoFilename (PVector coords) {
+		// TODO select video in function of coords in getVideoFilename()
+		
+		
+		
 		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers.mov";
-		// this needs still to be coded and these are several videos. 
-		// this configuration should be on a config file
+
+
+
 	}
 
 	public PImage getVideoFrame (PVector coords) {
 		PImage img;
 		// img = loadImage("car.jpg");
 		
-		// TODO select video in function of coords in getVideoFilename()
-		
-	
+		// TODO here we should have two modes of reproduction: frame-by-frame (no sound) and looped
+		// as of now we only have looped
+
 		if (!currentFilename.equals(getVideoFilename(coords))) {
 			currentFilename = getVideoFilename(coords);
 			currentVideo = new Movie (this, currentFilename); //TODO make it relative path			
 			currentVideo.loop();
-			
+
 			if (transmittingCommands) {
 				sendPlayCommand();
 			}
-			
 		}
-		
-		
-		img = currentVideo;		
-		
-	//	System.out.println(img.width + " " + img.height);
-		
-		
-		//TODO
-		/* get the corresponding frame from the video and return it
-		 * also this method needs to manage the playing / stopping the videos
-		 */
+
+		img = currentVideo;					
 		return img;
 	}
 
@@ -258,114 +273,116 @@ public class Server extends PApplet {
 
 		frameCoordinates.x = 0;
 		frameCoordinates.y = 0;
-		
-		
-	//	if (receivedMessagesFromAllClients()) { //TODO test
 
-			/* 	
-			 * need to do the following:
+
+		//	if (receivedMessagesFromAllClients()) { //TODO test the deletion of received all Messages
+
+		/* 	
+		 * need to do the following:
 
 			  		locate frame in 2D space
 					decide which module is the active module
 					getFrameToProject (currentState, location3D)
-					broadcast modules off
-					send JPEG frame to active module
-					send coordinates to active module
+					send active/which message to all modules
+					send JPEG frame to active module					
 
-			 */
+			 		to locate frame in 2D space
 
-			/*
-			 *  locate frame in 2D space
-			 
-			 		find the frame with the biggest area (Active frame)
-					find the secondary frame // 
-					distance (depending on which frame active = x or y)
-					distance to center = y or x
-			
-			draw the location on the location part of the interface
-			
-			*/
-			
-			int active = 0;
-			float maxArea = trackedFrames[0].getArea();
-			for (int i = 1; i < totalClients; i++) {
-				if (trackedFrames[i].getArea() > maxArea) {
-					maxArea = trackedFrames[i].getArea();
-					active = i;
-				}
+			 			find the frame with the biggest area (active frame)
+						find the secondary frame // 
+						distance (depending on which frame active = x or y)
+						distance to center = y or x
+
+						also draw the location on the location part of the interface
+
+		 */
+
+		// identifying active module
+		int active = 0;
+		float maxArea = trackedFrames[0].getArea();
+		for (int i = 1; i < totalClients; i++) {
+			if (trackedFrames[i].getArea() > maxArea) {
+				maxArea = trackedFrames[i].getArea();
+				active = i;
 			}
+		}
+
+		// identifying secondary module
+		int side = (active + 1) % 4;
+		int oppositeSide = (side + 2) % 4;
+		if (trackedFrames[side].getTrackedVerticesSize() < trackedFrames[oppositeSide].getTrackedVerticesSize()) {
+			side = oppositeSide;	
+		}
+		
+		// we assign the centroids to the frameCoordinates PVector to use as selector of videos later
+		if (active % 2 == 0) {  
+			frameCoordinates.x = trackedFrames[active].centroid().x;
+			frameCoordinates.y = trackedFrames[side].centroid().y;			
+		} else {			
+			frameCoordinates.x = trackedFrames[side].centroid().x;
+			frameCoordinates.y = trackedFrames[active].centroid().y;
+		}
+
+		fill (255, 0, 0);
+		
+		
+		// we draw the content of the virtual frame. This is not up to scale, but //TODO needs to be scaled correctly
+		pushMatrix();
+		translate(viewSeparation, viewSeparation);
 			
-			int side = (active + 1) % 4;
-			if (!(Frame.totalPoints >= 2)) {
-				side = (side + 2) % 4;				
-			}
-			
-			
-			if (active % 2 == 0) { 
-				frameCoordinates.x = trackedFrames[active].centroid().x;
-				frameCoordinates.y = trackedFrames[side].centroid().y;
-			} else {
-				frameCoordinates.x = trackedFrames[side].centroid().x;
-				frameCoordinates.y = trackedFrames[active].centroid().y;
-			}
-			
-			fill (255, 0, 0);
-			ellipse (frameCoordinates.x, frameCoordinates.y, 10, 10);
-			
+		ellipse (frameCoordinates.x, frameCoordinates.y, 10, 10);
+		
+		// 
+		noFill();
+		stroke(200, 200, 200);
+		
+		for (int i = 0; i < totalAreas; i++) {
+			rect(videoAreas[i][0].x,videoAreas[i][0].y, videoAreas[i][1].x, videoAreas[i][1].y);
 								
-			/*
-						
-			 if coordinate in area then 
-					if not playing video load corresponding video; current frame = 0
-			
-						load frame
-						if applyinf effect, apply effect (x,y)
-						send frame 
-						advance current frame
-				
-			else if coordinate in area-traversing (path)
-				play corresponding sound
-				if not video loaded, load video
-				get corresponding frame (x,y)
-				send frame
-									
-			
-			update background sound(s)
-			*/
-			
-			
+		}
+		
+		popMatrix();
+		
+		
 
 		//} // if received from all clients	
+
 		
+		// we get the video frame we will stream
 		PImage img = getVideoFrame (frameCoordinates);
 
+		// we tell the clients which one is active
 		activateClient(activeClient);
-		
+
+		// we stream the frame
 		if (transmittingFrames) {
 			sendImage(img, clients[activeClient], clientDatagramPort);
 		}
 		
 		drawStatus();
+		
 
+		// we draw the frames on our own display
 		trackedFrames[0].draw((PApplet)this, viewX + viewSeparation, viewY + viewSeparation, 0.66f, img);
 		trackedFrames[1].draw((PApplet)this, viewX + viewSeparation * 2 + viewWidth, viewY + viewSeparation, 0.66f, img);
 		trackedFrames[2].draw((PApplet)this, viewX + viewSeparation, viewY + viewHeight + viewSeparation * 2, 0.66f, img);
 		trackedFrames[3].draw((PApplet)this, viewX + viewSeparation * 2 + viewWidth, viewY + viewHeight + viewSeparation * 2, 0.66f, img);
-
-	}
+		
 	
+	}
+
 	private void sendPlayCommand() {
 		videoPlayMessage.clearArguments();
 		videoPlayMessage.add(currentFilename);
 		oscP5.send(videoPlayMessage, clientAddresses[activeClient]); 
-		
+
 	}
 
 	private void activateClient(int which) {
-		
+
 		// fixme! (we only have one client in testing)  
 		if (which != lastActiveClient) { 
-			
+
 
 			for (int i = 0; i < totalClients; i++) {
 				activeMessage.clearArguments();
@@ -380,18 +397,16 @@ public class Server extends PApplet {
 
 				activeMessage.add(params); 			
 
-				if (i == 0) { //TODO delete the (if) that i put because in test I have only one client
-					oscP5.send(activeMessage, clientAddresses[i]);
-				}
+				oscP5.send(activeMessage, clientAddresses[i]);
 			}
-			
+
 			midiBackground[lastActiveClient].note(60,  0); // silence the active					
 			midiBackground[which].note(60, 127); // start the new one
-			
+
 			lastActiveClient = which;
 		}
-			
-		
+
+
 	}
 
 	private boolean receivedMessagesFromAllClients() {
@@ -456,34 +471,34 @@ public class Server extends PApplet {
 						);
 			}
 			break;
-			
+
 		case '0': case '1': case '2': case '3':			
 			activeClient = keyCode-48;			
 			backgroundSound (activeClient);
 			break;
-			
+
 		case 'a':
-			
-				test.note(0,  127);
-				
-			
+
+			test.note(0,  127);
+
+
 			break;
-			
+
 		case 's':
-			
+
 			for (int i = 0; i < totalClients; i++) {
 				midiBackground[i].note(60, 128); 
 			}
 			break;
-			
+
 		case 'm':
 			sendPlayCommand();
 			break;
 		}
 	}
-	
+
 	public void backgroundSound(int activeClient) {
-		
+
 	}
 
 }
