@@ -37,7 +37,7 @@ public class Client extends PApplet {
 
 	private boolean transmitting = true;
 	protected boolean receivingCommands = false;
-	private boolean kinectPresent = false;
+	private boolean kinectPresent = true;
 	private boolean debug = true;
 
 	//Capture video;
@@ -98,17 +98,22 @@ public class Client extends PApplet {
 		vertices = new ArrayList<PVector>(totalVertices);
 		calibrationVertices = new PVector[4];
 
-		if (kinectPresent) {
-			kinect = new Kinect(this);
-			//if (kinect.numDevices() != 1) exit();
-			kinect.startDepth();
-			kinect.startVideo();
-			kinect.setIR(ir);
-			kinect.setColorDepth(colorDepth);
+		try {
+			if (kinectPresent) {
+				kinect = new Kinect(this);
+				//if (kinect.numDevices() != 1) exit();
+				kinect.startDepth();
+				kinect.startVideo();
+				kinect.setIR(ir);
+				kinect.setColorDepth(colorDepth);
 
-			deg = kinect.getTilt();
+				deg = kinect.getTilt();
 
-			opencv = new OpenCV(this, cameraWidth, cameraHeight);
+				opencv = new OpenCV(this, cameraWidth, cameraHeight);
+			}
+		} catch (Exception e) {
+			System.out.println("Could not connect to the kinect, and so we are exiting.");
+			System.exit(1);
 		}
 
 		// video.start();
