@@ -130,9 +130,9 @@ public class Server extends PApplet {
 
 		// todo get this info from txt file
 		for (int i = 0; i < totalClients; i++) {
-			clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  TODO load from config file
-			//clientAddresses[i] = new NetAddress("192.168.0" + (i+1), clientPort);   // 192.168.0."  
-			clients[i] = "127.0.0." + (i+1); // clients we are writing to
+			//clientAddresses[i] = new NetAddress("127.0.0" + (i+1), clientPort);   // 192.168.0."  TODO load from config file
+			clientAddresses[i] = new NetAddress("192.168.0" + (i+1), clientPort);   // 192.168.0."  
+			clients[i] = "192.168.0." + (i+1); // clients we are writing to
 
 			//trackedFrames[i] = new Frame (-100, -100, -100, -100, -100, -100, -100, -100);
 			trackedFrames[i] = new Frame (200, 100, 100, 200, 200, 200, 100, 100);					
