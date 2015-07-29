@@ -70,8 +70,8 @@ public class Server extends PApplet {
 	Movie currentVideo;
 	String currentFilename;
 
-	// int MIDI_CHANNELS[] = {0, 1, 2, 3, 4}; // tom's computer
-	int MIDI_CHANNELS[] = {0, 2, 3, 4, 5}; // ashtray
+	int MIDI_CHANNELS[] = {0, 1, 2, 3, 4}; // tom's computer
+	// int MIDI_CHANNELS[] = {0, 2, 3, 4, 5}; // ashtray
 
 	PVector[][] videoAreas; // an array of two pvectors are our areas
 	private int totalAreas = 4;
