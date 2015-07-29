@@ -77,6 +77,8 @@ public class Server extends PApplet {
 	private int totalAreas = 4;
 
 	int lastChangeTimestamp;
+	
+	boolean debug = true;
 
 	public void setup() {
 		size (1400, 800, P3D);		
@@ -451,7 +453,8 @@ public class Server extends PApplet {
 
 	private void drawStatus() {
 		textSize(14);
-
+		if (debug) text ("debug mode enabled", 50, 600);
+		
 		fill(255);
 	}
 
@@ -461,7 +464,12 @@ public class Server extends PApplet {
 
 		String adr = msg.address();
 		String[] adrBytes = split (adr, '.');
+		
 		int clientNumber = new Integer(adrBytes [3]).intValue() - 1; // 192.168.0.1 -> client 0
+		if (debug) {
+			System.out.println("received a message from client (0..3): " + clientNumber);
+		}
+		
 
 		// println("server: client number (last ip byte): " + clientNumber);
 
@@ -501,8 +509,8 @@ public class Server extends PApplet {
 			}
 			break;
 
-		case '0': case '1': case '2': case '3':			
-			activeClient = keyCode-48;			
+		case '1': case '2': case '3': case '4':			
+			activeClient = keyCode-49;			
 			backgroundSound (activeClient);
 			break;
 
@@ -511,6 +519,10 @@ public class Server extends PApplet {
 			test.note(0,  127);
 
 
+			break;
+			
+		case ' ':
+			debug = !debug;
 			break;
 
 		case 's':
