@@ -75,9 +75,13 @@ public class Server extends PApplet {
 	PVector[][] videoAreas; // an array of two pvectors are our areas
 	private int totalAreas = 4;
 	
+	int lastChangeTimestamp;
+	
 	public void setup() {
-		size (1400, 800, P3D);
+		size (1400, 800, P3D);		
 		frameRate(30);
+		
+		lastChangeTimestamp = -1;
 		currentFilename = "";
 		
 		videoAreas = new PVector[totalAreas][2];
@@ -205,11 +209,26 @@ public class Server extends PApplet {
 	}
 
 	private String getVideoFilename (PVector coords) {
-		// TODO select video in function of coords in getVideoFilename()
+		
+		int TOTAL_FILES_PER_PROJECTOR = 2;
+		int PROBABILTY_CHANGE = 3;
+		int MAX_TIME_VIDEO = 30;
+		
+		int now = millis();
+		
+		if (now - lastChangeTimestamp > 10) {
+			if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || random(10) > (10-PROBABILTY_CHANGE) ) {
+			
+				lastChangeTimestamp = now;
+				
+				return "projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR);								
+			}
+		}			
+		
+
+		return currentFilename;
 		
 		
-		
-		return "/Users/tom/devel/eclipse workspace/AAVS/bin/data/fingers.mov";
 
 
 
