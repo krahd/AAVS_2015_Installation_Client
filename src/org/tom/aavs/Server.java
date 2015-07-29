@@ -489,7 +489,7 @@ public class Server extends PApplet {
 		}
 	}
 
-	@SuppressWarnings("unused")
+	
 	private void reset() {
 		for (int i = 0; i < totalClients; i++) {
 			receivedTrackingClient[i] = false;
