@@ -106,7 +106,7 @@ public class Frame {
 			}
 
 		} catch (Exception e) { //TODO see why it does die from time to time, it makes no sense
-			System.out.println(":(");
+			System.out.println("can't draw frame");
 		}
 		p5.popMatrix();
 

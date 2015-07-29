@@ -87,6 +87,7 @@ public class Client extends PApplet {
 		size(displayWidth, displayHeight, P3D);
 		frameRate(30);
 		
+		println("AAVS CLIENT");
 		println("sketchpath: " + sketchPath);
 		println("datapath: " + dataPath(""));
 

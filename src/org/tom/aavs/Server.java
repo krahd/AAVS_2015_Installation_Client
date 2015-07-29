@@ -20,14 +20,15 @@ import processing.core.PImage;
 import processing.core.PVector;
 import processing.video.Movie;
 
-
-
 public class Server extends PApplet {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4547488521500559579L;
+
+	public static final boolean FULLSCREEN = false;
+
 	float viewX = 520;
 	float viewY = 0;
 	float viewHeight = 320;
@@ -74,19 +75,20 @@ public class Server extends PApplet {
 
 	PVector[][] videoAreas; // an array of two pvectors are our areas
 	private int totalAreas = 4;
-	
+
 	int lastChangeTimestamp;
-	
+
 	public void setup() {
 		size (1400, 800, P3D);		
 		frameRate(30);
-		
+
+		println("AAVS server");
 		println("sketchpath: " + sketchPath);
 		println("datapath: " + dataPath(""));
-		
+
 		lastChangeTimestamp = -1;
 		currentFilename = "";
-		
+
 		videoAreas = new PVector[totalAreas][2];
 
 		// first area
@@ -100,7 +102,7 @@ public class Server extends PApplet {
 		// third area
 		videoAreas [2][0] = new PVector (70, 10); // start point
 		videoAreas [2][1] = new PVector (100, 40); // end point;
-		
+
 		// fourth area
 		videoAreas [3][0] = new PVector (10, 70); // start point
 		videoAreas [3][1] = new PVector (90, 160); // end point;
@@ -176,76 +178,82 @@ public class Server extends PApplet {
 	public void sendImage (PImage img, String ip, int port) {
 		// We need a buffered image to do the JPG encoding
 
-		BufferedImage bimg = new BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB);
+		if (img != null) {
+			if (img.width != 0 && img.height != 0){
+				BufferedImage bimg = new BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB);
 
-		// Transfer pixels from localFrame to the BufferedImage
-		img.loadPixels();
-		bimg.setRGB(0, 0, img.width, img.height, img.pixels, 0, img.width);
+				// Transfer pixels from localFrame to the BufferedImage
+				img.loadPixels();
+				bimg.setRGB(0, 0, img.width, img.height, img.pixels, 0, img.width);
 
-		// Need these output streams to get image as bytes for UDP communication
-		ByteArrayOutputStream baStream = new ByteArrayOutputStream();
-		BufferedOutputStream bos = new BufferedOutputStream(baStream);
+				// Need these output streams to get image as bytes for UDP communication
+				ByteArrayOutputStream baStream = new ByteArrayOutputStream();
+				BufferedOutputStream bos = new BufferedOutputStream(baStream);
 
-		// compress the BufferedImage into a JPG and put it in the BufferedOutputStream
-		try {
-			ImageIO.write(bimg, "jpg", bos);
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
+				// compress the BufferedImage into a JPG and put it in the BufferedOutputStream
+				try {
+					ImageIO.write(bimg, "jpg", bos);
+				} 
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				// Get the byte array, which we will send out via UDP!
+				byte[] packet = baStream.toByteArray();
+
+				// Send JPEG data as a datagram
+				// println("Sending datagram with " + packet.length + " bytes");
+
+				// we send the frame to the active client
+
+				//		System.out.println(packet.length);
+				try {			
+					ds.send(new DatagramPacket(packet, packet.length, InetAddress.getByName(ip), port));
+				} 
+				catch (Exception e) {
+					e.printStackTrace();
+				}	
+			}
 		}
-
-		// Get the byte array, which we will send out via UDP!
-		byte[] packet = baStream.toByteArray();
-
-		// Send JPEG data as a datagram
-		// println("Sending datagram with " + packet.length + " bytes");
-
-		// we send the frame to the active client
-
-		//		System.out.println(packet.length);
-		try {			
-			ds.send(new DatagramPacket(packet, packet.length, InetAddress.getByName(ip), port));
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-		}	
 	}
 
 	private String getVideoFilename (PVector coords) {
-		
+
 		int TOTAL_FILES_PER_PROJECTOR = 2;
 		int PROBABILTY_CHANGE = 3;
-		int MAX_TIME_VIDEO = 30;
-		
+		int MAX_TIME_VIDEO = 30000;
+
 		int now = millis();
-		
-		if (now - lastChangeTimestamp > 10) {
+
+		if (now - lastChangeTimestamp > 10000) {
 			if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || random(10) > (10-PROBABILTY_CHANGE) ) {
-			
-				lastChangeTimestamp = now;														
-				return "./data/projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR);								
+
+				lastChangeTimestamp = now;
+				return "projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR) + ".mov";								
 			}
 		}			
-		
 
 		return currentFilename;
-		
-		
-
-
-
 	}
 
 	public PImage getVideoFrame (PVector coords) {
 		PImage img;
 		// img = loadImage("car.jpg");
-		
+
 		// TODO here we should have two modes of reproduction: frame-by-frame (no sound) and looped
 		// as of now we only have looped
+		
+		String newFilename = getVideoFilename(coords); 
 
-		if (!currentFilename.equals(getVideoFilename(coords))) {
-			currentFilename = getVideoFilename(coords);
-			currentVideo = new Movie (this, currentFilename); //TODO make it relative path			
+		if (!currentFilename.equals(newFilename)) {
+			
+			System.out.println("new video");
+			if (currentVideo != null){				
+				currentVideo.dispose();
+			}
+			
+			currentFilename = newFilename;
+			currentVideo = new Movie (this, currentFilename); 			
 			currentVideo.loop();
 
 			if (transmittingCommands) {
@@ -334,7 +342,7 @@ public class Server extends PApplet {
 		if (trackedFrames[side].getTrackedVerticesSize() < trackedFrames[oppositeSide].getTrackedVerticesSize()) {
 			side = oppositeSide;	
 		}
-		
+
 		// we assign the centroids to the frameCoordinates PVector to use as selector of videos later
 		if (active % 2 == 0) {  
 			frameCoordinates.x = trackedFrames[active].centroid().x;
@@ -345,30 +353,30 @@ public class Server extends PApplet {
 		}
 
 		fill (255, 0, 0);
-		
-		
+
+
 		// we draw the content of the virtual frame. This is not up to scale, but //TODO needs to be scaled correctly
 		pushMatrix();
 		translate(viewSeparation, viewSeparation);
-			
+
 		ellipse (frameCoordinates.x, frameCoordinates.y, 10, 10);
-		
+
 		// 
 		noFill();
 		stroke(200, 200, 200);
-		
+
 		for (int i = 0; i < totalAreas; i++) {
 			rect(videoAreas[i][0].x,videoAreas[i][0].y, videoAreas[i][1].x, videoAreas[i][1].y);
-								
+
 		}
-		
+
 		popMatrix();
-		
-		
+
+
 
 		//} // if received from all clients	
 
-		
+
 		// we get the video frame we will stream
 		PImage img = getVideoFrame (frameCoordinates);
 
@@ -379,17 +387,17 @@ public class Server extends PApplet {
 		if (transmittingFrames) {
 			sendImage(img, clients[activeClient], clientDatagramPort);
 		}
-		
+
 		drawStatus();
-		
+
 
 		// we draw the frames on our own display
 		trackedFrames[0].draw((PApplet)this, viewX + viewSeparation, viewY + viewSeparation, 0.66f, img);
 		trackedFrames[1].draw((PApplet)this, viewX + viewSeparation * 2 + viewWidth, viewY + viewSeparation, 0.66f, img);
 		trackedFrames[2].draw((PApplet)this, viewX + viewSeparation, viewY + viewHeight + viewSeparation * 2, 0.66f, img);
 		trackedFrames[3].draw((PApplet)this, viewX + viewSeparation * 2 + viewWidth, viewY + viewHeight + viewSeparation * 2, 0.66f, img);
-		
-	
+
+
 	}
 
 	private void sendPlayCommand() {
@@ -522,10 +530,12 @@ public class Server extends PApplet {
 
 	}
 
+	static public void main(String args[]) { 
+		if (FULLSCREEN) {
+			PApplet.main(new String[] { "--present", "--bgcolor=#000000", "--hide-stop", "--present-stop-color=#000000", "org.tom.aavs.Server" });
+		} else {
+			PApplet.main(new String[] { "--bgcolor=#000000", "--hide-stop", "--present-stop-color=#000000", "org.tom.aavs.Server" });
+		}
+
+	}
 }
-
-
-
-
-
-
