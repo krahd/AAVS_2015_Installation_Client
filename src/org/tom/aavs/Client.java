@@ -101,7 +101,12 @@ public class Client extends PApplet {
 			System.out.println("** I am client number (internal): " + whoami);
 			
 		} catch (Exception e) {
-			System.out.println("setup file doesn't exist, assuming I am client 0.");
+			System.out.println("setup file doesn't exist, getting id from IP.");
+			String myLAN = NetInfo.lan();
+			String[] adrBytes = split (myLAN, '.');			
+			whoami = new Integer(adrBytes [3]).intValue() - 1;
+			System.out.println("My ID now is: "+ whoami);
+			
 		}
 		
 		println("AAVS CLIENT");
