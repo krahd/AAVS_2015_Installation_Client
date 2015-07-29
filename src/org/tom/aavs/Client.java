@@ -37,8 +37,8 @@ public class Client extends PApplet {
 
 	private boolean transmitting = true;
 	protected boolean receivingCommands = false;
-	private boolean kinectPresent = true;
-	private boolean debug = true;
+	private boolean kinectPresent = false;
+	private boolean debug = false;
 
 	//Capture video;
 	OpenCV opencv;
@@ -78,7 +78,7 @@ public class Client extends PApplet {
 	int calibratingVertex;
 	PVector [] calibrationVertices;
 
-	private final String CONFIG_FILE = "/Users/tom/devel/eclipse workspace/AAVS/bin/data/config.txt";
+	private final String CONFIG_FILE = "config.txt";
 
 	Movie localMovie;
 
@@ -86,6 +86,9 @@ public class Client extends PApplet {
 		//size(1024, 768, P3D);			
 		size(displayWidth, displayHeight, P3D);
 		frameRate(30);
+		
+		println("sketchpath: " + sketchPath);
+		println("datapath: " + dataPath(""));
 
 		activeClient = true;
 		calibrating = false;

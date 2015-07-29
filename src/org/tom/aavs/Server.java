@@ -81,6 +81,9 @@ public class Server extends PApplet {
 		size (1400, 800, P3D);		
 		frameRate(30);
 		
+		println("sketchpath: " + sketchPath);
+		println("datapath: " + dataPath(""));
+		
 		lastChangeTimestamp = -1;
 		currentFilename = "";
 		
@@ -219,9 +222,8 @@ public class Server extends PApplet {
 		if (now - lastChangeTimestamp > 10) {
 			if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || random(10) > (10-PROBABILTY_CHANGE) ) {
 			
-				lastChangeTimestamp = now;
-				
-				return "projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR);								
+				lastChangeTimestamp = now;														
+				return "./data/projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR);								
 			}
 		}			
 		
