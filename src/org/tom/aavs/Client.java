@@ -37,7 +37,7 @@ public class Client extends PApplet {
 
 	private boolean transmitting = true;
 	protected boolean receivingCommands = false;
-	private boolean kinectPresent = false;
+	private boolean kinectPresent = true;
 	private boolean debug = false;
 
 	//Capture video;
