@@ -342,10 +342,9 @@ public class Client extends PApplet {
 
 		if (transmitting) {
 
-			trackMessage.clearArguments();
-
 			if (vertices.size() > 0) {
 
+				trackMessage.clearArguments();
 				int[] params = new int[vertices.size()*2];
 
 				for (int i = 0; i < vertices.size(); i++) {
@@ -353,13 +352,11 @@ public class Client extends PApplet {
 					params[2*i+1] = (int)vertices.get(i).y;				
 				}
 				trackMessage.add(params);
+				oscP5.send(trackMessage, serverLocation);
+				if (debug) {
+					System.out.print(".");
+				}	
 			}
-			
-			if (debug) {
-				System.out.print(".");
-			}
-
-			oscP5.send(trackMessage, serverLocation);
 		}
 
 		if (transmitting && !receivingCommands) {
