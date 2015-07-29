@@ -43,7 +43,7 @@ public class Server extends PApplet {
 	private int clientPort = 11200;
 	private int clientDatagramPort = 11100;
 
-	OscP5 oscP5;
+	OscP5[] oscP5;
 	String[] clients;
 	Frame[] trackedFrames;
 
@@ -83,7 +83,7 @@ public class Server extends PApplet {
 	public void setup() {
 		size (1400, 800, P3D);		
 		frameRate(30);
-
+	
 		println("AAVS server");
 		println("sketchpath: " + sketchPath);
 		println("datapath: " + dataPath(""));
@@ -151,8 +151,12 @@ public class Server extends PApplet {
 
 			receivedTrackingClient[i] = false;
 		}
-		oscP5 = new OscP5(this, serverPort); // port we are listening to
-
+		
+		oscP5 = new OscP5[totalClients];
+		for (int i = 0; i < totalClients; i++){
+			oscP5[i] = new OscP5(this, serverPort+i); // port we are listening to	
+		}
+		
 		try {
 			ds = new DatagramSocket();
 		} catch (SocketException e) {
@@ -405,7 +409,7 @@ public class Server extends PApplet {
 	private void sendPlayCommand() {
 		videoPlayMessage.clearArguments();
 		videoPlayMessage.add(currentFilename);
-		oscP5.send(videoPlayMessage, clientAddresses[activeClient]); 
+		oscP5[0].send(videoPlayMessage, clientAddresses[activeClient]);		
 
 	}
 
@@ -428,7 +432,7 @@ public class Server extends PApplet {
 
 				activeMessage.add(params); 			
 
-				oscP5.send(activeMessage, clientAddresses[i]);
+				oscP5[i].send(activeMessage, clientAddresses[i]);				
 			}
 
 			midiBackground[lastActiveClient].note(60,  0); // silence the active					
