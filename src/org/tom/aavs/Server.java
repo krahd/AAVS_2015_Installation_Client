@@ -227,7 +227,7 @@ public class Server extends PApplet {
 
 	private String getVideoFilename (PVector coords) {
 
-		int TOTAL_FILES_PER_PROJECTOR = 2;
+		int TOTAL_FILES_PER_PROJECTOR = 4;
 		int PROBABILTY_CHANGE = 3;
 		int MAX_TIME_VIDEO = 30000;
 
