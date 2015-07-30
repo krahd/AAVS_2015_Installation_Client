@@ -519,14 +519,14 @@ public class Server extends PApplet {
 		switch (key) {
 		
 		case 'V':
-			videoVolume += 0.1f;
+			videoVolume += 0.01f;
 			if (videoVolume > 1f) videoVolume = 1f;
 			if (debug) System.out.println("volume: " + videoVolume);
 			currentVideo.volume(videoVolume);
 			break;
 			
 		case 'v':
-			videoVolume -= 0.1f;
+			videoVolume -= 0.01f;
 			if (videoVolume < 0) videoVolume = 0;
 			if (debug) System.out.println("volume: " + videoVolume);
 			currentVideo.volume(videoVolume);
