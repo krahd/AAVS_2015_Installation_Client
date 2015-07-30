@@ -478,8 +478,9 @@ public class Server extends PApplet {
 	private void drawStatus() {
 		textSize(14);
 		if (debug) text ("debug mode enabled", 50, 600);
-		if (debug) text ("active client: " + activeClient, 50, 650);
-		if (debug) text("current video: " + currentFilename, 50, 700); 
+		text ("active client: " + activeClient, 50, 650);
+		text("current video: " + currentFilename, 50, 700);
+		text("current video volume: " + videoVolume, 50, 750);
 		fill(255);
 	}
 
@@ -529,14 +530,18 @@ public class Server extends PApplet {
 			videoVolume += 0.01f;
 			if (videoVolume > 1f) videoVolume = 1f;
 			if (debug) System.out.println("volume: " + videoVolume);
-			currentVideo.volume(videoVolume);
+			if (currentVideo != null) {
+				currentVideo.volume(videoVolume);
+			}
 			break;
 			
 		case 'v':
 			videoVolume -= 0.01f;
 			if (videoVolume < 0) videoVolume = 0;
 			if (debug) System.out.println("volume: " + videoVolume);
-			currentVideo.volume(videoVolume);
+			if (currentVideo != null) {
+				currentVideo.volume(videoVolume);
+			}
 			break;
 			
 			
