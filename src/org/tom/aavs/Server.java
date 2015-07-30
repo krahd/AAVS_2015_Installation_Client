@@ -80,12 +80,14 @@ public class Server extends PApplet {
 	
 	boolean debug = true;
 
+	float videoVolume;
 	private int lastClientMessage;
 
 	public void setup() {
 		size (1400, 800, P3D);		
 		frameRate(30);
 	
+		videoVolume = 0.3f;
 		println("AAVS server");
 		println("sketchpath: " + sketchPath);
 		println("datapath: " + dataPath(""));
@@ -261,7 +263,8 @@ public class Server extends PApplet {
 			}
 			
 			currentFilename = newFilename;
-			currentVideo = new Movie (this, currentFilename); 			
+			currentVideo = new Movie (this, currentFilename); 	
+			currentVideo.volume(videoVolume);
 			currentVideo.loop();
 
 			if (transmittingCommands) {
@@ -469,6 +472,7 @@ public class Server extends PApplet {
 		textSize(14);
 		if (debug) text ("debug mode enabled", 50, 600);
 		if (debug) text ("active client: " + activeClient, 50, 650);
+		if (debug) text("current video: " + currentFilename, 50, 700); 
 		fill(255);
 	}
 
@@ -513,6 +517,22 @@ public class Server extends PApplet {
 
 	public void keyPressed() {
 		switch (key) {
+		
+		case 'V':
+			videoVolume += 0.1f;
+			if (videoVolume > 1f) videoVolume = 1f;
+			if (debug) System.out.println("volume: " + videoVolume);
+			currentVideo.volume(videoVolume);
+			break;
+			
+		case 'v':
+			videoVolume -= 0.1f;
+			if (videoVolume < 0) videoVolume = 0;
+			if (debug) System.out.println("volume: " + videoVolume);
+			currentVideo.volume(videoVolume);
+			break;
+			
+			
 		case 'p':
 			for (int i = 0; i < totalClients; i++) {
 				trackedFrames[i] = new Frame (						
