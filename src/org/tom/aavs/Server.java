@@ -71,7 +71,6 @@ public class Server extends PApplet {
 	String currentFilename;
 
 	int MIDI_CHANNELS[] = {0, 1, 2, 3, 4}; // tom's computer
-	// int MIDI_CHANNELS[] = {0, 2, 3, 4, 5}; // ashtray
 
 	PVector[][] videoAreas; // an array of two pvectors are our areas
 	private int totalAreas = 4;
@@ -448,7 +447,15 @@ public class Server extends PApplet {
 				oscP5[i].send(activeMessage, clientAddresses[i]);				
 			}
 
-			midiBackground[lastActiveClient].note(60,  0); // silence the active					
+			// midiBackground[lastActiveClient].note(60,  0); // silence the last active
+			
+			for (int i = 0; i < totalClients; i++) {
+				if (i >= activeClient) {
+					midiBackground[i].note(60,  0); // silence  all except the active
+				}
+			}
+			
+			
 			midiBackground[which].note(60, 127); // start the new one
 
 			lastActiveClient = which;
