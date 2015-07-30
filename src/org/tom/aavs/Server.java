@@ -450,7 +450,7 @@ public class Server extends PApplet {
 			// midiBackground[lastActiveClient].note(60,  0); // silence the last active
 			
 			for (int i = 0; i < totalClients; i++) {
-				if (i >= activeClient) {
+				if (i != activeClient) {
 					midiBackground[i].note(60,  0); // silence  all except the active
 				}
 			}
