@@ -42,6 +42,8 @@ public class Server extends PApplet {
 	private int serverPort = 11300;
 	private int clientPort = 11200;
 	private int clientDatagramPort = 11100;
+	
+	private boolean clientChanged = true;
 
 	OscP5[] oscP5;
 	String[] clients;
@@ -233,14 +235,15 @@ public class Server extends PApplet {
 		int MAX_TIME_VIDEO = 30000;
 
 		int now = millis();
+		
+		if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || 
+				random(10) > (10-PROBABILTY_CHANGE) || 
+				clientChanged) {
 
-		if (now - lastChangeTimestamp > 10000) {
-			if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || random(10) > (10-PROBABILTY_CHANGE) ) {
+			lastChangeTimestamp = now;
+			return "projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR) + ".mov";								
+		}
 
-				lastChangeTimestamp = now;
-				return "projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR) + ".mov";								
-			}
-		}			
 
 		return currentFilename;
 	}
@@ -256,7 +259,7 @@ public class Server extends PApplet {
 
 		if (!currentFilename.equals(newFilename)) {
 			
-			System.out.println("new video");
+			if (debug) System.out.println("new video");
 			if (currentVideo != null){				
 				currentVideo.dispose();
 			}
@@ -430,6 +433,7 @@ public class Server extends PApplet {
 		// fixme! (we only have one client in testing)  
 		if (which != lastActiveClient) { 
 
+			clientChanged = true;
 
 			for (int i = 0; i < totalClients; i++) {
 				activeMessage.clearArguments();
@@ -455,10 +459,11 @@ public class Server extends PApplet {
 				}
 			}
 			
-			
 			midiBackground[which].note(60, 127); // start the new one
 
 			lastActiveClient = which;
+		} else {
+			clientChanged = false;
 		}
 
 

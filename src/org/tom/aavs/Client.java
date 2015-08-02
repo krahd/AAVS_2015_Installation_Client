@@ -90,7 +90,9 @@ public class Client extends PApplet {
 	public void setup() {
 		//size(1024, 768, P3D);			
 		size(displayWidth, displayHeight, P3D);
-		frameRate(30);				
+		frameRate(30);		
+		
+		noCursor();	
 		
 		try {
 			String[] lines = loadStrings(SETUP_FILE);  // load the configuration data
