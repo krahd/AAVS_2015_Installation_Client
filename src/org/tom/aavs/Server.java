@@ -236,8 +236,8 @@ public class Server extends PApplet {
 
 		int now = millis();
 		
-		if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || 
-				random(100) > (100-PROBABILTY_CHANGE) ) { // || 
+		if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO ||   
+			random(1000) > (1000-PROBABILTY_CHANGE) ) { // 	|| 
 				//clientChanged) {
 
 			lastChangeTimestamp = now;
