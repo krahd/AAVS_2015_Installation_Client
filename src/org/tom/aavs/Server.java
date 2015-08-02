@@ -79,7 +79,7 @@ public class Server extends PApplet {
 
 	int lastChangeTimestamp;
 	
-	boolean debug = true;
+	boolean debug = false;
 
 	float videoVolume;
 	private int lastClientMessage;
@@ -231,13 +231,13 @@ public class Server extends PApplet {
 	private String getVideoFilename (PVector coords) {
 
 		int TOTAL_FILES_PER_PROJECTOR = 4;
-		int PROBABILTY_CHANGE = 3;
+		int PROBABILTY_CHANGE = 5;
 		int MAX_TIME_VIDEO = 30000;
 
 		int now = millis();
 		
 		if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || 
-				random(10) > (10-PROBABILTY_CHANGE) || 
+				random(100) > (100-PROBABILTY_CHANGE) || 
 				clientChanged) {
 
 			lastChangeTimestamp = now;
