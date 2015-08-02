@@ -232,13 +232,13 @@ public class Server extends PApplet {
 
 		int TOTAL_FILES_PER_PROJECTOR = 4;
 		int PROBABILTY_CHANGE = 5;
-		int MAX_TIME_VIDEO = 30000;
+		int MAX_TIME_VIDEO = 40000;
 
 		int now = millis();
 		
 		if ( (now - lastChangeTimestamp) > MAX_TIME_VIDEO || 
-				random(100) > (100-PROBABILTY_CHANGE) || 
-				clientChanged) {
+				random(100) > (100-PROBABILTY_CHANGE) ) { // || 
+				//clientChanged) {
 
 			lastChangeTimestamp = now;
 			return "projector" + activeClient + (int)random(TOTAL_FILES_PER_PROJECTOR) + ".mov";								
