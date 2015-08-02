@@ -517,7 +517,6 @@ public class Server extends PApplet {
 					((Integer) msg.arguments()[i*2+1]).intValue());
 
 			trackedFrames[clientNumber].v.add(vertex);
-
 		}
 	}
 

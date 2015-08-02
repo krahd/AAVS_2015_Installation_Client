@@ -201,6 +201,7 @@ public class Client extends PApplet {
 	}
 
 	public void mouseClicked() {
+		noCursor();
 		if (calibrating) {
 			calibrationVertices[calibratingVertex] = new PVector(mouseX, mouseY);
 			calibratingVertex++;
@@ -299,20 +300,21 @@ public class Client extends PApplet {
 			opencv.gray();
 			opencv.threshold(70);
 			dst = opencv.getOutput();
-			vertices.clear();
-
 			contours = opencv.findContours();
+			
 			int i = 0;
+			vertices.clear();
 
 			for (Contour contour : contours) {
 
-				stroke(0, 255, 0);
+				//  stroke(0, 255, 0);
 				//	contour.draw();
 				Rectangle bbox = contour.getBoundingBox();
 
 				if (i < totalVertices) { // we only store the first totalVertices blobs' coordinates
 					vertices.add(new PVector ((float)bbox.getCenterX(), (float)bbox.getCenterY()));
 				}
+				//i++;
 			}
 		}
 		else { // kinect !present
